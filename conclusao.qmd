@@ -1,0 +1,8 @@
+# Conclusão {#sec-conclusao}
+
+Dada a coleta de dados das demandas de ouvidoria, este pequeno 
+relatório compriu seus objetivos, pois obteve-se sucesso na 
+automatização das análises tabulares e gráficas, além de, 
+utilização de várias funções de relatorios do *Quarto Book* como,
+por exemplo, mudanças do *layout* da paǵina e utilização 
+referências cruzadas, entre outras.

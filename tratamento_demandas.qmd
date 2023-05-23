@@ -1,0 +1,19 @@
+# Parâmetros das Manifestações {#sec-tratamento-manifestacoes}
+
+A partir deste ponto, o relatório de gestão da Ouvidoria Nacional dos Serviços Penais traz as análises dos dados coletados acerca das manifestações recebidas.
+
+A metodologia tem seguinte fluxo:
+
+1.  Coleta de dados através de formulário digital;
+
+2.  Tratamento e adequação dos bancos de dados;
+
+3.  Criação do banco de dados integrado contendo informações de ouvidoria;
+
+4.  Tratamento semiautomático de inconsistências no formulário;
+
+5.  Atualização mensal do painel de *Business Inteligence (BI)* para análise e pesquisa dos dados;
+
+6.  Atualização anual deste relatório de gestão.
+
+Nesse sentido, o [capítulo @sec-estatisticas-anuais] traz informações sobre a evolução das informações no período de referência, o [capítulo @sec-dados-ouvidoria-2020] analisa os dados do ano de 2020, o [capítulo @sec-dados-ouvidoria-2021] evidencia as informações de 2021 e o [capítulo @sec-dados-ouvidoria-2022] mostra os gráficos e tabelas referentes ao ano de 2022.

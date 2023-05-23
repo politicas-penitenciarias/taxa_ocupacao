@@ -1,0 +1,1759 @@
+```{r message=FALSE}
+library(tidyverse)
+library(knitr)
+library(plotly)
+library(kableExtra)
+library(DT)
+library(gganimate)
+library(formattable)
+library(abjutils)
+library(janitor)
+
+cores <- c("#294661","#7F312F","#808080","#B8860B","#5E3B56","#5F9EA0","#808000","#A0522D",
+           "#F5DEB3","#FF9900","#8B008B","#5F6B6D","#FB8281","#F4D25A","#7F898A","#A4DDEE",
+           "#FDAB89","#B687AC","#28738A","#A78F8F","#168980","darkred","#0000FF","#00FFFF",
+           "#DAA520","#DEB887") #VETOR DE CORES PARA OS GRAFICOS
+
+meses <- c("Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez")
+vetor_filtro1 <- c(2020,2021,2022)
+vetor_filtro2 <- c(2021,2022)
+
+dados_gerais <- 
+  readRDS(
+    file = "../bases_tidy/rel1_dados_gerais.rds",
+    #fileEncoding = "UTF-8"
+  )
+
+tipos_demandas <-
+  readRDS(
+    file = "../bases_tidy/rel2_tipos_demandas.rds"
+  )
+
+solicitacoes <- 
+  readRDS(
+    file = "../bases_tidy/rel3_solicitacoes.rds"
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = lubridate::year(org_data_inicio_tratamento)
+  )
+
+denuncias <- 
+  readRDS(
+    file = "../bases_tidy/rel4.1_denuncias_tipo.rds"
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = lubridate::year(org_data_inicio_tratamento)
+  )
+
+reclamacoes <- 
+  readRDS(
+    file = "../bases_tidy/rel5.1_reclamacoes_tipo.rds"
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = lubridate::year(org_data_inicio_tratamento)
+  )
+
+sugestoes <- 
+  readRDS(
+    file = "../bases_tidy/rel6.1_sugestoes_tipo.rds"
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = lubridate::year(org_data_inicio_tratamento)
+  )
+
+elogios <- 
+  readRDS(
+    file = "../bases_tidy/rel7.1_elogios_tipo.rds"
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = lubridate::year(org_data_inicio_tratamento)
+  )
+
+producao <- 
+  readRDS(
+      file = "../bases_tidy/rel8_index_producao.rds"
+  )
+
+```
+
+# Parâmetros no Período de Referência {#sec-estatisticas-anuais}
+
+Este capítulo traz análises estatísticas com as evoluções anuais das manifestações tratadas pela Ouvidoria Nacional dos Serviços Penais (Onasp) no período entre `r min(vetor_filtro1)` e `r max(vetor_filtro1)`.
+
+O objetivo principal é mostrar como as variáveis institucionais, sociais, administrativas e políticas influenciam, com passar do tempo, nas tipificações e controle das demandas recebidas, além disso, visa especificamente publicizar informações ao público externo, cumprir determinações legais e subsidiar a tomada de decisão de gestores públicos.
+
+As seções [seção @sec-meios-acesso-ouvidoria], [seção @sec-aptidao] e [seção @sec-tipos-processos] discorrem sobre as formas de acesso à ouvidoria, aptidão de suas demandas recebidas e, além disso, mostram o rol de tipificação das manifestações encaminhadas à ouvidoria. Nesse sentido, têm-se informações sobre o fluxo de chegada de documentos à Onasp.
+
+Entre a [seção @sec-solicitacoes] e a [seção @sec-elogios], realizam-se as análises sobre todos os tipos de manifestações recebidas, sendo: solicitações, denúncias, reclamações, sugestões, elogios e/ou agradecimentos. Dessa forma, são analisadas as quantidades absolutas de demandas e suas variações percentuais a cada ano dentro do período de referência.
+
+As seções [seção @sec-tempos1] e [seção @sec-producao] gerenciam os índices de tempo de atendimento das demandas e produção dos colaboradores da Onasp, respectivamente.
+
+::: callout-important
+## Importante!!!
+
+*Todas as análises contidas neste relatório tem o início do tratamento da demanda como data de referência.*
+:::
+
+Por fim, durante todo o capítulo, são utilizados recursos gráficos e tabelas para melhor entendimento do comportamento das variáveis envolvidas no processo de análise.
+
+## Sobre os meios de acesso à Ouvidoria {#sec-meios-acesso-ouvidoria}
+
+O gráfico na [figura @fig-graf-apresentacao-evolucao] mostra a evolução do meios de apresentação das manifestações realizadas[^estatisticas_anuais-1]. Visualiza-se a grande diferença das demandas realizadas via cartas (meio físico) em detrimento das demais formas. Esse fenômeno encontra explicação na impossibilidade de acesso a meios tecnológicos por parte dos custodiados.
+
+[^estatisticas_anuais-1]: Informações a respeito das formas de acesso à ouvidoria estão disponíveis a partir de 2021.
+
+```{r}
+
+dados_gerais_apresentacao <- 
+  dados_gerais|> 
+  filter(
+    org_ano_inicio_tratamento %in% vetor_filtro2,
+    !is.na(org_apresentacao_demanda),
+    org_apresentacao_demanda != "N/A",
+    org_apresentacao_demanda != ""
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento,
+    org_apresentacao_demanda
+  ) |> 
+  summarise(
+    qtd = n()
+  ) |> 
+  ungroup() |>
+  group_by(
+    org_ano_inicio_tratamento
+  ) |>
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = str_c(round((qtd / total)*100, digits = 2),"%"),
+    org_ano_inicio_tratamento = as.factor( org_ano_inicio_tratamento),
+    #valores = str_c(qtd,porcentagem, sep = "; ")
+  ) |>
+ arrange(desc(org_ano_inicio_tratamento)) |> 
+  select(
+    org_ano_inicio_tratamento,
+    org_apresentacao_demanda,
+    qtd
+  ) |> 
+  pivot_wider(
+    names_from = org_apresentacao_demanda,
+    values_from = qtd
+  )
+
+
+```
+
+```{r}
+#| label: fig-graf-apresentacao-evolucao
+#| fig-cap: >  
+#|       Evolução do valor absoluto para dimensão das formas de 
+#|       apresentação das manisfestações à Onasp no período de referência. A coleta 
+#|       dos dados deste quesito iniciou-se em 2021.
+
+ 
+p1 <- dados_gerais_apresentacao |> 
+  plot_ly(
+    x = ~ org_ano_inicio_tratamento,
+    y = ~ Carta,
+    name = "Carta",
+    type = 'bar',
+    text = ~ Carta,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#294661")
+  )
+
+p1 <- p1 |> 
+  add_trace(
+    y = ~`E-mail`,
+    name = "E-mail",
+    type = 'bar',
+    text = ~`E-mail`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#7F312F")
+  )
+
+p1 <- p1 |> 
+  add_trace(
+    y = ~`Fala.BR`,
+    name = "Fala.BR",
+    type = 'bar',
+    text = ~`Fala.BR`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#808080")
+  )
+
+p1 <- p1 |> 
+  add_trace(
+    y = ~`Ofício`,
+    name = "Ofício",
+    type = 'bar',
+    text = ~`Ofício`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#B8860B")
+  )
+
+p1 <- p1 |> layout(
+  #title = "Tempos médios / 2021",
+  uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Quantidade de Manifestações"),
+  legend = list(orientation = "v")
+)
+
+p1
+```
+
+## Sobre a aptidão ao tratamento das demandas {#sec-aptidao}
+
+As manifestações recebidas passam por análise de tipificação para tomada de decisão acerca dos encaminhamentos necessários à solução da manifestação. Nesse momento, percebe-se a inaptidão das demandas seguindo os seguintes critérios: Falta de informações para entendimento do problema; demandas sem nexo e/ou clareza em sua escrita; demandas duplicadas; e manifestações fora do escopo de competência da Onasp.
+
+O gráfico na [figura @fig-graf-aptidao] evidencia as quantidade de demandas aptas em relação às não aptas.
+
+```{r}
+dados_gerais_aptidao <- 
+  dados_gerais |>
+  filter(org_ano_inicio_tratamento %in% vetor_filtro1) |> 
+  dplyr::select(
+    org_ano_inicio_tratamento,
+    dem001_demanda_apta,
+    dem002_demanda_motivo_inaptidao
+  ) |> 
+  mutate(org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento))
+
+```
+
+```{r}
+#| label: fig-graf-aptidao
+#| fig-cap: >
+#|  Evolução das informações acerca da aptidão das demandas.
+
+p2 <- dados_gerais_aptidao |>
+  select(org_ano_inicio_tratamento,dem001_demanda_apta) |> 
+  count(org_ano_inicio_tratamento,dem001_demanda_apta, name = "qtd") |> 
+  pivot_wider(
+    names_from = "dem001_demanda_apta",
+    values_from = "qtd"
+  ) |>
+  mutate(
+    porcentagem_sim = round((`Sim`/(`Sim` + `Não`)*100), digits = 2),
+    porcentagem_nao = round((`Não`/(`Sim` + `Não`)*100), digits = 2)
+  ) |> 
+  plot_ly(
+    x = ~ `org_ano_inicio_tratamento`,
+    y = ~ `Sim`,
+    name = "Aptas",
+    type = 'bar',
+    text = ~ str_c(`Sim`,"/ ",porcentagem_sim,"%"),
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#294661")
+  )
+
+p2 <- p2 |> 
+  add_trace(
+    y = ~ `org_ano_inicio_tratamento`,
+    name = "Não aptas",
+    type = 'bar',
+    text = ~ str_c(`Não`,"/ ",porcentagem_nao,"%"),
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#7F312F")
+  )
+
+p2 <- p2 |> layout(
+  #title = "Tempos médios / 2021",
+  uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Quantidade de Manifestações"),
+  legend = list(orientation = "v")
+)
+
+p2
+
+```
+
+Agora, na [figura @fig-graf-aptidao2], dentro do conjunto de demandas não aptas, temos suas tipificações e quantidade de manifestações para cada ano de coleta[^estatisticas_anuais-2].
+
+[^estatisticas_anuais-2]: A coleta sobre os motivos da inaptidão das demandas iniciou-se em 2021.
+
+```{r}
+linha <- data.frame(
+  org_ano_inicio_tratamento=as.factor(c(2021)),
+  dem002_demanda_motivo_inaptidao=c("Falta de nexo e/ou  clareza"),
+  qtd = c(0)
+)
+
+dados_gerais_aptidao2 <- 
+  dados_gerais |>
+  filter(
+    org_ano_inicio_tratamento %in% vetor_filtro2,
+    !is.na(dem002_demanda_motivo_inaptidao),
+    !dem002_demanda_motivo_inaptidao %in% c("Demanda apta","","NA")
+    ) |>
+  dplyr::select(
+    org_ano_inicio_tratamento,
+    dem002_demanda_motivo_inaptidao
+  ) |> 
+  mutate(org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento)) |> 
+  group_by(
+    org_ano_inicio_tratamento,
+    dem002_demanda_motivo_inaptidao
+  ) |> 
+  summarise(
+    qtd = n()
+  ) |> 
+  pivot_wider(
+    names_from = dem002_demanda_motivo_inaptidao,
+    values_from = qtd
+  )
+  
+```
+
+```{r}
+#| label: fig-graf-aptidao2
+#| fig-cap: >
+#|  Tipificações para os motivos da inaptidão das demandas. Início de coleta dos dados em 2021.
+
+p3 <- dados_gerais_aptidao2 |> 
+  plot_ly(
+    x = ~ org_ano_inicio_tratamento,
+    y = ~ `Duplicidade`,
+    name = "Duplicidade",
+    type = 'bar',
+    text = ~ `Duplicidade`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#294661")
+  )
+
+p3 <- p3 |> 
+  add_trace(
+    y = ~`Falta de informações`,
+    name = "Falta de informações",
+    type = 'bar',
+    text = ~`Falta de informações`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#7F312F")
+  )
+
+p3 <- p3 |> 
+  add_trace(
+    y = ~`Não compete à onsp`,
+    name = "Não compete à Onasp",
+    type = 'bar',
+    text = ~`Não compete à onsp`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#808080")
+  )
+
+p3 <- p3 |>
+  add_trace(
+    y = ~`Falta de nexo e/ou  clareza`,
+    name = "Falta de nexo e/ou clareza",
+    type = 'bar',
+    text = ~`Falta de nexo e/ou  clareza`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#B8860B")
+  )
+
+p3 <- p3 |> layout(
+  #title = "Tempos médios / 2021",
+  uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Quantidade de Manifestações"),
+  legend = list(orientation = "v")
+)
+
+p3
+```
+
+## Tipos de processos {#sec-tipos-processos}
+
+```{r}
+dados_gerais_tipos_demandas <- 
+  tipos_demandas|> 
+  filter(
+    org_ano_inicio_tratamento %in% vetor_filtro1,
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento,
+    tipo_demanda
+  ) |> 
+  summarise(
+    qtd = n()
+  ) |> 
+  ungroup() |> 
+  group_by(
+    org_ano_inicio_tratamento,
+    ) |> 
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = round((qtd / total)*100, digits = 2)  
+  ) |>  
+  arrange(org_ano_inicio_tratamento, desc(porcentagem)) |> 
+  mutate(
+      tipo_demanda = factor(
+      tipo_demanda, 
+      levels = c("Solicitação","Denúncia","Reclamação","Sugestão","Elogio e/ou agradecimento"), 
+      ordered = TRUE),
+      org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento)
+  )
+
+```
+
+A tabela abaixo separa a quantidade de processos de acordo com suas características (tipos) e mostra os quantitativos absolutos e relativos para cada ano e tipo de demanda. Vale ressaltar que, em um mesmo processo, pode haver vários tipos de manifestações. Portanto, a soma de todos os tipos de manifestações é superior à quantidade total de processos.
+
+```{r}
+#| label: tbl-demandas1
+#| tbl-cap: >
+#|   Características
+#|   pela Ouvidoria Nacional dos Serviços Penais.
+    
+
+t2 <- dados_gerais_tipos_demandas |> 
+  select(
+    org_ano_inicio_tratamento, tipo_demanda, qtd,porcentagem 
+  ) 
+names(t2) <- c("Ano","Tipo de demanda","Quantidade","Qtd. relativa (%)")
+
+formattable::formattable(
+    t2, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo de demanda` = color_tile("lightgrey","orange"),
+    
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Qtd. relativa (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+      info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+      paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+      url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+```{r}
+#| label: fig-graf-tipos-demandas
+#| fig-cap: >  
+#|       Evolução anual da quantidade de manifestações recebidas pela Onasp.
+
+p6 <- dados_gerais_tipos_demandas |> 
+  #filter(tipo_demanda %in% c("Solicitação","Denúncia")) |> 
+  plot_ly(
+    x = ~ org_ano_inicio_tratamento,
+    y = ~ qtd,
+    type = "scatter",
+    #mode = "lines+markers",
+    linetype = ~ tipo_demanda,
+    color =  ~ tipo_demanda,
+    colors = c("#294661","#7F312F","#808080","#B8860B","#5E3B56"),
+    showlegend = TRUE
+  )
+
+# p6 <- p6 |> add_text(
+#   text = ~ str_c(qtd,"; ",porcentagem,"%"),
+#   textposition = "top",color = I("#294661")
+# )
+
+p6 <- p6 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Quantidade de Manifestações"),
+  legend = list(orientation = "h")
+)
+
+p6
+```
+
+## Solicitações {#sec-solicitacoes}
+
+```{r}
+solicitacoes1 <- 
+  solicitacoes |> 
+  filter(org_ano_inicio_tratamento %in% vetor_filtro1) |> 
+  count(
+    org_ano_inicio_tratamento,
+    tipo_solicitacao,
+    name = "qtd"
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento
+  ) |> 
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = round((qtd/total)*100, digits = 2)
+  ) |> 
+  arrange(org_ano_inicio_tratamento, desc(qtd)) 
+
+tipos_diferentes <- 
+  solicitacoes1 |> 
+  ungroup() |>
+  group_by(tipo_solicitacao) |> 
+  summarise(
+    qtd2 = sum(qtd,na.rm = TRUE),
+    total2 = sum(total,na.rm = TRUE),
+    porcentagem = round((qtd2/total2)*100, digits = 2)
+  )
+
+var_perc_sol <- 
+  solicitacoes1 |> 
+  group_by(org_ano_inicio_tratamento) |> 
+  summarise(
+    qtd_variacao = sum(qtd,na.rm = TRUE)
+  ) |> 
+  ungroup() |> 
+  mutate(
+    var_perc = 0,
+    var_ano = 0
+  )
+
+for (i in 2:nrow(var_perc_sol)) {
+    var_perc_sol$var_perc[i]=(var_perc_sol$qtd_variacao[i]/var_perc_sol$qtd_variacao[i-1]-1)*100
+    var_perc_sol$var_ano[i] = str_c(var_perc_sol$org_ano_inicio_tratamento[i-1],"-",var_perc_sol$org_ano_inicio_tratamento[i])
+    }
+  
+var_perc_sol<-var_perc_sol |> mutate(var_perc=round(var_perc,digits = 2))
+
+solicitacoes2 <- 
+  solicitacoes1 |> 
+  group_by(org_ano_inicio_tratamento) |> 
+  summarise(
+    qtd = sum(qtd,na.rm = TRUE)
+  )
+max_qtd = max(solicitacoes2$qtd)
+
+```
+
+Dentre os tipos de demandas, as solicitações possuem a maior diversidade em um total de `r sum(var_perc_sol$qtd_variacao)` manifestações com `r nrow(tipos_diferentes)` tipificações diferentes entre `r min(var_perc_sol$org_ano_inicio_tratamento)` e `r max(var_perc_sol$org_ano_inicio_tratamento)`.
+
+A próxima tabela lista as quantidades de solicitações e as variações percentuais a cada ano.
+
+```{r}
+#| label: tbl-tipos-solicitacoes-var-perc
+#| tbl-cap: >
+#|   Lista de solicitações com valores absolutos e variações percentuais a cada ano.
+
+t1_solicitacoes <- var_perc_sol  |> select(-var_ano)
+  
+names(t1_solicitacoes) <- c("Ano","Quantidade","Variação percentual (%)")
+
+formattable::formattable(
+    t1_solicitacoes, 
+    align = c("c","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Variação percentual (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+A [figura @fig-graf-tipos-demandas-variacao-percentual] mostra graficamente a evolução da variação percentual da quantidade de solicitações.
+
+```{r}
+#| label: fig-graf-tipos-demandas-variacao-percentual
+#| fig-cap: >  
+#|       Variação percentual anual das solicitações realizadas à Onasp.
+
+p7 <- var_perc_sol |> 
+  mutate(org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento)) |>
+  filter(var_perc != 0) |> 
+  plot_ly(
+    x = ~ var_ano,
+    y = ~ `var_perc`,
+    type = 'bar',
+    text = ~ str_c( `var_perc`,"%"),
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = c("#294661"))
+  )
+
+p7 <- p7 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Variação percentual (%)",range = c(0.0))
+  #legend = list(orientation = "h")
+)
+
+p7
+```
+
+Já a figura [figura @fig-graf-tipos-demandas-evol-quantidade] mostra a evolução das quantidades de solicitações.
+
+```{r}
+#| label: fig-graf-tipos-demandas-evol-quantidade
+#| fig-cap: >  
+#|       Evolução das quantidade de manifestações.
+
+p8 <- solicitacoes1 |> 
+  group_by(org_ano_inicio_tratamento) |> 
+  summarise(
+    qtd = sum(qtd,na.rm = TRUE)
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento)
+  )
+
+p8 <- plot_ly(
+    data = p8,
+    x = ~ org_ano_inicio_tratamento,
+    y = ~ qtd,
+    type = "scatter",
+    mode = "lines+markers",
+    line = list(color = "#294661"),
+    marker = list(color = "#294661"),
+    # linetype = ~ tipo_demanda,
+    #color =  c("#7F312F","#808080","#B8860B","#5E3B56"),
+    #colors = c("#7F312F","#808080","#B8860B","#5E3B56"),
+    showlegend = FALSE
+  )
+
+p8 <- p8 |> add_text(
+  text = ~ qtd,
+  textposition = "bottom",
+  color = I("#294661")
+)
+
+p8 <- p8 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Quantidade de manifestações",range = c(0.0,max_qtd*1.12))
+  #legend = list(orientation = "h")
+)
+
+p8
+```
+
+## Denúncias {#sec-denuncias}
+
+```{r}
+denuncias1 <- 
+  denuncias |> 
+  filter(org_ano_inicio_tratamento %in% vetor_filtro1) |>
+  count(
+    org_ano_inicio_tratamento,
+    tipo_denuncia,
+    name = "qtd"
+  ) 
+  
+var_perc_denuncia <-  
+   denuncias1 |> 
+   group_by(org_ano_inicio_tratamento) |>
+   summarise(
+     qtd = sum(qtd,na.rm=TRUE)
+   ) |> 
+  ungroup() |> 
+  mutate(
+    var_perc = 0,
+    var_ano = 0)
+
+for (i in 2:nrow(var_perc_denuncia)) {
+    var_perc_denuncia$var_perc[i]=(var_perc_denuncia$qtd[i]/var_perc_denuncia$qtd[i-1]-1)*100
+    var_perc_denuncia$var_ano[i] = str_c(var_perc_denuncia$org_ano_inicio_tratamento[i-1],"-",var_perc_denuncia$org_ano_inicio_tratamento[i])
+    }
+  
+var_perc_denuncia <- var_perc_denuncia |> mutate(var_perc = round(var_perc,digits = 2))
+
+tipos_diferentes_den <- 
+  denuncias1 |> 
+  ungroup() |>
+  group_by(tipo_denuncia) |> 
+  summarise(
+    qtd2 = sum(qtd,na.rm = TRUE),
+  )
+
+denuncias2 <- 
+  denuncias1 |> 
+  group_by(
+    org_ano_inicio_tratamento
+  ) |> 
+  summarise(
+    qtd = sum(qtd,na.rm = TRUE)
+  )
+max_qtd <- max(denuncias2$qtd)
+
+```
+
+As denúncias são, em valores absolutos, o segundo tipo mais recorrente de manifestação apresentada à Onasp com `r sum(var_perc_denuncia$qtd)` demandas ocorridas no período de referência deste documento, além disso, identifica-se `r nrow(tipos_diferentes_den)` tipos diferentes de agravos realizados.
+
+A seguir, a tabela evidencia os valores absolutos e variações percentuais entre os anos do período entre `r min(var_perc_denuncia$org_ano_inicio_tratamento)` e `r max(var_perc_denuncia$org_ano_inicio_tratamento)`.
+
+```{r}
+#| label: tbl-tipos-denuncias-quantidade-absoluta
+#| tbl-cap: >
+#|   Lista de solicitações com valores absolutos e variações percentuais a cada ano.
+
+t1_denuncias <- var_perc_denuncia |> select(-var_ano)
+  
+names(t1_denuncias) <- c("Ano","Quantidade","Variação percentual (%)")
+
+formattable::formattable(
+    t1_denuncias, 
+    align = c("c","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Variação percentual (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+A próxima possibilidade de análise consta na [figura @fig-graf-denuncias-variacao-percentual]. A mesma traz o gráfico evolutivo para as variações percentuais.
+
+```{r}
+#| label: fig-graf-denuncias-variacao-percentual
+#| fig-cap: >  
+#|       Variação percentual anual das denúncias realizadas à Onasp.
+
+p9 <- var_perc_denuncia  |> 
+  mutate(org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento)) |>
+  filter(var_perc != 0) |> 
+  plot_ly(
+    x = ~ var_ano,
+    y = ~ `var_perc`,
+    type = 'bar',
+    text = ~ str_c( `var_perc`,"%"),
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = c("#7F312F","#294661"))
+  )
+
+p9 <- p9 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Variação percentual (%)")
+  #legend = list(orientation = "h")
+)
+
+p9
+
+```
+
+Já a figura [figura @fig-graf-denuncias-evol-quantidade] mostra a evolução das quantidades de denúncias em valores absolutos.
+
+```{r}
+#| label: fig-graf-denuncias-evol-quantidade
+#| fig-cap: >  
+#|       Evolução das quantidade de manifestações caracterizadas como denúncias.
+
+p10 <- denuncias1 |> 
+  group_by(org_ano_inicio_tratamento) |> 
+  summarise(
+    qtd = sum(qtd,na.rm = TRUE)
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento)
+  )
+
+p10 <- plot_ly(
+    data = p10,
+    x = ~ org_ano_inicio_tratamento,
+    y = ~ qtd,
+    type = "scatter",
+    mode = "lines+markers",
+    line = list(color = "#294661"),
+    marker = list(color = "#294661"),
+    # linetype = ~ tipo_demanda,
+    #color =  c("#7F312F","#808080","#B8860B","#5E3B56"),
+    #colors = c("#7F312F","#808080","#B8860B","#5E3B56"),
+    showlegend = FALSE
+  )
+
+p10 <- p10 |> add_text(
+  text = ~ qtd,
+  textposition = "top",
+  color = I("#294661")
+)
+
+p10 <- p10 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Quantidade de manifestações", range = list(0,max_qtd*1.12))
+  #legend = list(orientation = "h")
+)
+
+p10
+
+```
+
+## Reclamações {#sec-reclamacoes}
+
+```{r}
+reclamacoes1 <- 
+  reclamacoes |> 
+  filter(org_ano_inicio_tratamento %in% vetor_filtro1) |> 
+  count(org_ano_inicio_tratamento,name = "qtd") |>
+  mutate(
+    var_perc = 0
+  )
+
+var_perc_reclamacoes <-  
+   reclamacoes1 |> 
+   group_by(org_ano_inicio_tratamento) |>
+   summarise(
+     qtd = sum(qtd,na.rm=TRUE)
+   ) |> 
+  ungroup() |> 
+  mutate(
+    var_perc = 0,
+    var_ano = 0
+  )
+
+for (i in 2:nrow(var_perc_reclamacoes)) {
+    var_perc_reclamacoes$var_perc[i]=(var_perc_reclamacoes$qtd[i]/var_perc_reclamacoes$qtd[i-1]-1)*100
+    var_perc_reclamacoes$var_ano[i] = str_c(var_perc_reclamacoes$org_ano_inicio_tratamento[i-1],"-",var_perc_reclamacoes$org_ano_inicio_tratamento[i])
+    }
+  
+var_perc_reclamacoes <- 
+  var_perc_reclamacoes |> 
+  mutate(var_perc = round(var_perc,digits = 2))
+
+tipos_diferentes_rec <- 
+  reclamacoes |> 
+  count(tipo_reclamacao, name = "qtd")
+
+reclamacoes2 <- 
+  reclamacoes1 |> 
+  group_by(org_ano_inicio_tratamento) |> 
+  summarise(
+    qtd = sum(qtd,na.rm = TRUE)
+  )
+max_qtd <- max(reclamacoes2$qtd)
+```
+
+As reclamações somam `r sum(var_perc_reclamacoes$qtd)` demandas ocorridas entre `r min(var_perc_reclamacoes$org_ano_inicio_tratamento)` e `r max(var_perc_reclamacoes$org_ano_inicio_tratamento)` com `r nrow(tipos_diferentes_rec)` diferentes assuntos reclamados.
+
+A tabela abaixo traz os valores absolutos e variações percentuais no período de referência.
+
+```{r}
+#| label: tbl-tipos-reclamacoes-quantidade-absoluta
+#| tbl-cap: >
+#|   Lista de reclamações com valores absolutos e variações percentuais a cada ano.
+
+t1_reclamacoes <- var_perc_reclamacoes |> select(-var_ano)
+  
+names(t1_reclamacoes) <- c("Ano","Quantidade","Variação percentual (%)")
+
+formattable::formattable(
+    t1_reclamacoes, 
+    align = c("c","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Variação percentual (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+Segue na [figura @fig-graf-reclamacao-var-perc a variação percentual] da quantidade de reclamações a cada ano.
+
+```{r}
+#| label: fig-graf-reclamacao-var-perc
+#| fig-cap: >
+#|  Variação percentual anual das reclamações realizadas à Onasp.
+
+p11 <- var_perc_reclamacoes |> 
+  filter(var_perc != 0) |> 
+  plot_ly(
+    x = ~ var_ano,
+    y = ~ `var_perc`,
+    type = 'bar',
+    text = ~ str_c( `var_perc`,"%"),
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = c("#7F312F","#294661"))
+  )
+
+p11 <- p11 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Variação percentual (%)")
+  #legend = list(orientation = "h")
+)
+
+p11
+```
+
+Já a figura [figura @fig-graf-reclamacacoes-evol-quantidade] mostra a evolução das quantidades de reclamações em valores absolutos.
+
+```{r}
+#| label: fig-graf-reclamacacoes-evol-quantidade
+#| fig-cap: >  
+#|       Evolução das quantidade de manifestações caracterizadas como reclamações.
+
+p12 <- reclamacoes1 |> 
+  group_by(org_ano_inicio_tratamento) |> 
+  summarise(
+    qtd = sum(qtd,na.rm = TRUE)
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento)
+  )
+
+p12 <- plot_ly(
+    data = p12,
+    x = ~ org_ano_inicio_tratamento,
+    y = ~ qtd,
+    type = "scatter",
+    mode = "lines+markers",
+    line = list(color = "#294661"),
+    marker = list(color = "#294661"),
+    showlegend = FALSE
+  )
+
+p12 <- p12 |> add_text(
+  text = ~ qtd,
+  textposition = "top",
+  color = I("#294661")
+)
+
+p12 <- p12 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Quantidade de manifestações", range = list(0,max_qtd*1.12))
+  #legend = list(orientation = "h")
+)
+
+p12
+
+```
+
+## Sugestões {#sec-sugestoes}
+
+```{r}
+sugestoes1 <- 
+  sugestoes |> 
+  filter(org_ano_inicio_tratamento %in% vetor_filtro1) |> 
+  count(org_ano_inicio_tratamento,name = "qtd") |>
+  mutate(
+    var_perc = 0
+  )
+
+var_perc_sugestoes <-  
+   sugestoes1 |> 
+   group_by(org_ano_inicio_tratamento) |>
+   summarise(
+     qtd = sum(qtd,na.rm=TRUE)
+   ) |> 
+  ungroup() |> 
+  mutate(
+    var_perc = 0,
+    var_ano = 0
+  )
+
+for (i in 2:nrow(var_perc_sugestoes)) {
+    var_perc_sugestoes$var_perc[i]=(var_perc_sugestoes$qtd[i]/var_perc_sugestoes$qtd[i-1]-1)*100
+    var_perc_sugestoes$var_ano[i] = str_c(var_perc_sugestoes$org_ano_inicio_tratamento[i-1],"-",var_perc_sugestoes$org_ano_inicio_tratamento[i])
+    }
+  
+var_perc_sugestoes <- 
+  var_perc_sugestoes |> 
+  mutate(var_perc = round(var_perc,digits = 2))
+
+tipos_diferentes_sug <- 
+  sugestoes |> 
+  count(tipo_sugestao, name = "qtd")
+
+sugestoes2 <- 
+  sugestoes1 |> 
+  group_by(org_ano_inicio_tratamento) |> 
+  summarise(
+    qtd = sum(qtd,na.rm = TRUE)
+  )
+max_qtd <- max(sugestoes2$qtd)
+ 
+```
+
+As sugestões somam `r sum(var_perc_sugestoes$qtd)` demandas ocorridas entre `r min(var_perc_sugestoes$org_ano_inicio_tratamento)` e `r max(var_perc_sugestoes$org_ano_inicio_tratamento)` com `r nrow(tipos_diferentes_rec)` diferentes assuntos sugeridos.
+
+A próxima tabela traz os valores absolutos e variações percentuais no período de referência.
+
+```{r}
+#| label: tbl-tipos-sugestoes-quantidade-absoluta
+#| tbl-cap: >
+#|   Lista de sugestões com valores absolutos e variações percentuais a cada ano.
+
+t1_sugestoes <- var_perc_sugestoes |> select(-var_ano)
+  
+names(t1_sugestoes) <- c("Ano","Quantidade","Variação percentual (%)")
+
+formattable::formattable(
+    t1_sugestoes, 
+    align = c("c","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Variação percentual (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+Segue, na [figura @fig-graf-sugestao-var-perc] , a variação percentual da quantidade de sugestões a cada ano.
+
+```{r}
+#| label: fig-graf-sugestao-var-perc
+#| fig-cap: >
+#|  Variação percentual anual das sugestões realizadas à Onasp.
+
+p13 <- var_perc_sugestoes |> 
+  filter(var_perc != 0) |> 
+  plot_ly(
+    x = ~ var_ano,
+    y = ~ `var_perc`,
+    type = 'bar',
+    text = ~ str_c( `var_perc`,"%"),
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = c("#7F312F","#294661"))
+  )
+
+p13 <- p13 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Variação percentual (%)")
+  #legend = list(orientation = "h")
+)
+
+p13
+```
+
+Já a figura [figura @fig-graf-sugestao-evol-quantidade] mostra a evolução das quantidades de sugestões em valores absolutos.
+
+```{r}
+#| label: fig-graf-sugestao-evol-quantidade
+#| fig-cap: >  
+#|       Evolução das quantidade de manifestações caracterizadas como reclamações.
+
+p14 <- sugestoes1 |> 
+  group_by(org_ano_inicio_tratamento) |> 
+  summarise(
+    qtd = sum(qtd,na.rm = TRUE)
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento)
+  )
+
+p14 <- plot_ly(
+    data = p14,
+    x = ~ org_ano_inicio_tratamento,
+    y = ~ qtd,
+    type = "scatter",
+    mode = "lines+markers",
+    line = list(color = "#294661"),
+    marker = list(color = "#294661"),
+    showlegend = FALSE
+  )
+
+p14 <- p14 |> add_text(
+  text = ~ qtd,
+  textposition = "top",
+  color = I("#294661")
+)
+
+p14 <- p14 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Quantidade de manifestações",range = list(0,max_qtd*1.12))
+  #legend = list(orientation = "h")
+)
+
+p14
+
+```
+
+## Elogios e/ou Agradecimentos {#sec-elogios}
+
+```{r}
+elogios1 <- 
+  elogios |> 
+  filter(org_ano_inicio_tratamento %in% vetor_filtro1) |> 
+  count(org_ano_inicio_tratamento,name = "qtd") |>
+  mutate(
+    var_perc = 0
+  )
+
+var_perc_elogios <-  
+   elogios1 |> 
+   group_by(org_ano_inicio_tratamento) |>
+   summarise(
+     qtd = sum(qtd,na.rm=TRUE)
+   ) |> 
+  ungroup() |> 
+  mutate(
+    var_perc = 0,
+    var_ano = 0
+  )
+
+for (i in 2:nrow(var_perc_elogios)) {
+    var_perc_elogios$var_perc[i]=(var_perc_elogios$qtd[i]/var_perc_elogios$qtd[i-1]-1)*100
+    var_perc_elogios$var_ano[i] = str_c(var_perc_elogios$org_ano_inicio_tratamento[i-1],"-",var_perc_elogios$org_ano_inicio_tratamento[i])
+    }
+  
+var_perc_elogios <- 
+  var_perc_elogios |> 
+  mutate(var_perc = round(var_perc,digits = 2))
+
+tipos_diferentes_elo <- 
+  elogios |> 
+  count(tipo_elogio, name = "qtd")
+
+elogios2 <- 
+  elogios1 |>
+  group_by(org_ano_inicio_tratamento) |> 
+  summarise(
+    qtd = sum(qtd,na.rm=TRUE)
+  )
+max_qtd <- max(elogios2$qtd, na.rm = TRUE)
+```
+
+Os elogios e/ou agradecimentos somam `r sum(var_perc_elogios$qtd)` demandas ocorridas entre `r min(var_perc_elogios$org_ano_inicio_tratamento)` e `r max(var_perc_elogios$org_ano_inicio_tratamento)` com `r nrow(tipos_diferentes_rec)` diferentes ações, procedimentos e posturas elogiadas.
+
+A seguinte tabela traz os valores absolutos e variações percentuais no período de referência.
+
+```{r}
+#| label: tbl-tipos-elogios-quantidade-absoluta
+#| tbl-cap: >
+#|   Lista de reclamações com valores absolutos e variações percentuais a cada ano.
+
+t1_elogios <- var_perc_elogios |> select(-var_ano)
+  
+names(t1_elogios) <- c("Ano","Quantidade","Variação percentual (%)")
+
+formattable::formattable(
+    t1_elogios, 
+    align = c("c","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Variação percentual (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+Segue na [figura @fig-graf-elogio a variação percentual] da quantidade de elogios/agradecimentos a cada ano.
+
+```{r}
+#| label: fig-graf-elogio
+#| fig-cap: >
+#|  Variação percentual anual das elogios e/ou agradecimentos realizadas à Onasp.
+
+p15 <- var_perc_elogios |> 
+  filter(var_perc != 0) |> 
+  plot_ly(
+    x = ~ var_ano,
+    y = ~ `var_perc`,
+    type = 'bar',
+    text = ~ str_c( `var_perc`,"%"),
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = c("#294661","#7F312F"))
+  )
+
+p15 <- p15 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Variação percentual (%)")
+  #legend = list(orientation = "h")
+)
+
+p15
+```
+
+Já a figura [figura @fig-graf-elogio-evol-quantidade-absoluto] mostra a evolução das quantidades de elogios/agradecimentos em valores absolutos.
+
+```{r}
+#| label: fig-graf-elogio-evol-quantidade-absoluto
+#| fig-cap: >  
+#|       Evolução das quantidade de manifestações caracterizadas como elogios e/ou agradecimentos.
+
+p16 <- elogios1 |> 
+  group_by(org_ano_inicio_tratamento) |> 
+  summarise(
+    qtd = sum(qtd,na.rm = TRUE)
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento)
+  )
+
+p16 <- plot_ly(
+    data = p16,
+    x = ~ org_ano_inicio_tratamento,
+    y = ~ qtd,
+    type = "scatter",
+    mode = "lines+markers",
+    line = list(color = "#294661"),
+    marker = list(color = "#294661"),
+    showlegend = FALSE
+  )
+
+p16 <- p16 |> add_text(
+  text = ~ qtd,
+  textposition = "top",
+  color = I("#294661")
+)
+
+p16 <- p16 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Quantidade de manifestações", range = list(0,max_qtd*1.12))
+  #legend = list(orientation = "h")
+)
+
+p16
+
+```
+
+## Tempo de atendimento {#sec-tempos1}
+
+```{r}
+dados_gerais_tempos <- 
+  dados_gerais |> 
+  select(
+    org_ano_inicio_tratamento,
+    org_mes_inicio_tratamento,
+    tempo_chegada_onsp,
+    tempo_tratamento_onsp,
+    tempo_total
+  ) 
+
+```
+
+O processo de análise e encaminhamento de demandas na ouvidoria nacional dos serviços penais compreende três etapas distintas, sendo: processo de recebimento da manifestação; procedimentos de análise de documentos; e encaminhamento da demanda ao órgão competente para solução da manifestação.
+
+Na primeira etapa, em sua maioria, o tempo medido para entrega da carta, e-mail, ofício ou Fala.BR é utilizado para determinação do tempo de chegada à ouvidoria. Após a entrega da manifestação, inicia-se a contagem do tempo de análise pela ouvidoria com a elaboração dos documentos processuais e encaminhamento.
+
+Dessa forma, surgem três índices para medição do tempo: **Tempo de chegada**, **Tempo de tratamento** e **Tempo total de atendimento**.
+
+-   **Tempo de chegada:** tempo gasto entre a efetivação da demanda pelo manifestante e a chegada à Onasp. Para o caso de demandas realizadas através de cartas físicas, a data do carimbo do selo dos correios é utilizada como referência;
+
+-   **Tempo de tratamento:** tempo entre a chegada da demanda e a conclusão do processo na Onasp;
+
+-   **Tempo total de atendimento:** O tempo necessário entre a efetivação da demanda pelo manifestante e a conclusão do processo na Ouvidoria Nacional dos Serviços Penais.
+
+    ::: {.callout-warning appearance="simple"}
+    ## Atenção!
+
+    *O índices de atendimento são calculados a partir de amostras das datas de efetivação, recebimento e conclusão da demanda. Nesse sentido, o tempo total de atendimento não é a soma exata do tempo de tratamento e de chegada.*
+    :::
+
+O ano de 2020 trouxe índices de atendimento superiores devido ao represamento de cartas no período entre 2017 e 2019, com início de tratamento em 2020.
+
+A próxima tabela mostra as médias e as medianas para cada índice no período de referência.
+
+Nesse sentido, as metas temporais para atendimento das manifestações levam em consideração a lei n° 13.460/2017 e os objetivos desta ouvidoria, dessa forma, considera-se adequados os tempos de atendimento conforme abaixo:
+
+-   média do tempo de chegada inferior a 20 dias;
+
+-   média do tempo de tratamento inferior a 10 dias; e
+
+-   média do tempo total inferior a 30 dias.
+
+    ::: {.callout-warning appearance="simple"}
+    ## Atenção!
+
+    *A Onasp não tem controle sobre o índice do tempo de chegada, pois o mesmo depende de fatores externos, como por exemplo, demora para entrega de correspondência via correios ou envio de processos por outros órgãos.*
+    :::
+
+```{r}
+#| label: tbl-tempos
+#| tbl-cap: >
+#|   Médias e medianas das referências temporais utilizada como índices 
+#|   pela Ouvidoria Nacional dos Serviços Penais.
+
+t1 <- dados_gerais_tempos |>
+  filter(org_ano_inicio_tratamento %in% vetor_filtro1) |>
+  group_by(org_ano_inicio_tratamento) |> 
+  summarise(
+    media_chegada = round(mean(tempo_chegada_onsp,na.rm = TRUE),digits = 2),
+    media_tratamento = round(mean(tempo_tratamento_onsp,na.rm = TRUE),digits = 2),
+    media_total = round(mean(tempo_total,na.rm = TRUE),digits = 2),
+    
+    mediana_chegada = round(median(tempo_chegada_onsp, na.rm = TRUE),digits = 2),
+    mediana_tratamento = round(median(tempo_tratamento_onsp, na.rm = TRUE),digits = 2),
+    mediana_total = round(median(tempo_total, na.rm = TRUE),digits = 2),
+    
+    coef_chegada = round((sd(tempo_chegada_onsp, na.rm = TRUE)/media_chegada),digits = 2),
+    coef_tratamento = round((sd(tempo_tratamento_onsp, na.rm = TRUE)/media_tratamento),digits = 2),
+    coef_total = round((sd(tempo_total, na.rm = TRUE)/media_total),digits = 2)
+  ) |> 
+  pivot_longer(
+    cols = !c(org_ano_inicio_tratamento),
+    names_to = "medida",
+    values_to = "tempo"
+  ) |> 
+  mutate(
+    medida_resumo = case_when(
+      str_detect(medida, "media_") ~ "Média",
+      str_detect(medida, "coef_") ~ "Coef. de variação",
+      TRUE ~ "Mediana"
+    ),
+
+    medida = case_when(
+      str_detect(medida, "tratamento") ~ "Tempo de tratamento",
+      str_detect(medida, "chegada") ~ "Tempo de chegada",
+      TRUE ~ "Tempo total"
+    )
+  ) |> 
+  pivot_wider(names_from = medida_resumo,values_from = tempo) |> 
+  mutate(
+    tempo_adequado = case_when(
+      medida == "Tempo de chegada" & `Média`<20 ~ "Sim",
+      medida == "Tempo de tratamento" & `Média`<10 ~ "Sim",
+      medida == "Tempo total" & `Média`<30 ~ "Sim",
+      TRUE ~ "Não"
+    )
+  )
+
+names(t1) <- c("Ano","Medida","Média","Mediana","Coef. de variação", "Tempo adequado")
+formattable::formattable(
+    t1, 
+    align = c("c","l","l","l","l","c"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Medida` = color_tile("lightgrey","orange"),
+    
+    area(col = c(`Média`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Mediana`)) ~ normalize_bar("lightblue", 0.2),
+    area(col = c(`Coef. de variação`)) ~ normalize_bar("lightgreen", 0.2),
+    
+    `Tempo adequado` = formatter("span", 
+                                   style = x ~ style(color = case_when(
+                                                                      x == "Sim" ~ "Green",
+                                                                      TRUE ~ "red"                                                                    ), 
+                                            x ~ sprintf("%.2f (rank: %02g)", x, rank(-x)))
+    
+                                      )
+    
+    
+)) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+      pageLength = 5, 
+      autoWidth = TRUE,
+      initComplete = JS(
+        "function(settings, json) {",
+        "$('body').css({'font-family': 'Calibri'});",
+        "}"
+      ),
+      language = list(
+        info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+        paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+        url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+      )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+Agora, a [figura @fig-evolucao-media] mostra a evolução das médias mensais dos tempos de atendimento.
+
+```{r}
+dados_gerais_tempo_media <- 
+  dados_gerais |> 
+  filter(org_ano_inicio_tratamento %in% vetor_filtro1) |> 
+  select(
+    org_ano_inicio_tratamento,
+    org_mes_inicio_tratamento,
+    tempo_chegada_onsp,
+    tempo_tratamento_onsp,
+    tempo_total
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento),
+    org_mes_inicio_tratamento = factor(org_mes_inicio_tratamento, levels = meses)
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento
+  ) |> 
+  summarise(
+    `Tempo médio de chegada`=round(mean(tempo_chegada_onsp, na.rm = TRUE),digits = 2),
+    `Tempo médio de tratamento`=round(mean(tempo_tratamento_onsp,na.rm= TRUE),digits = 2),
+    `Tempo médio total`=round(mean(tempo_total, na.rm = TRUE),digits = 2)
+  ) 
+```
+
+```{r}
+#| label: fig-evolucao-media
+#| fig-cap: >
+#|     Evolução anual dos tempos médios de chegada, tratamento e total.
+
+p3 <- dados_gerais_tempo_media |> 
+  plot_ly(
+    x = ~ org_ano_inicio_tratamento,
+    y = ~ `Tempo médio de chegada`,
+    name = "Tempo médio de chegada",
+    type = 'scatter',
+    mode = "lines+marker",
+    text = ~ `Tempo médio de chegada`,
+    textposition = "auto",
+    alpha = 0.7,
+    line = list(
+      color = "#294661", 
+      width = 1.5
+      #dash = 'dash'
+    ),
+    marker = list(
+      color = "#294661",
+      line = list(color = "#294661", width=1.5)
+    )
+  )
+
+p3 <- p3 |> 
+  add_trace(
+    y = ~`Tempo médio de tratamento`,
+    name = "Tempo médio de tratamento",
+    type = 'scatter',
+    mode = "lines+marker",
+    text = ~`Tempo médio de tratamento`,
+    textposition = "auto",
+    alpha = 0.7,
+    line = list(
+      color = "#7F312F", 
+      width = 1.5, 
+      dash = 'dot'
+    ),
+    marker = list(
+      color = "#7F312F",
+      line = list(color = "#7F312F",width=1.5)
+    )
+  )
+
+p3 <- p3 |> 
+  add_trace(
+    y = ~  `Tempo médio total`,
+    name = "Tempo médio total",
+    type = 'scatter',
+    mode = "lines+marker",
+    text = ~ `Tempo médio total`,
+    textposition = "auto",
+    alpha = 0.7,
+    line = list(
+      color = "#808080", 
+      width = 1.5, 
+      dash = 'dash'
+    ),
+    marker = list(
+      color = "#808080",
+      line = list(color = "#808080",width=1.5,dash="dash")
+      )
+  )
+
+p3 <- p3 |> layout(
+  #title = "Tempos médios / 2021",
+  uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Tempo (dias)"),
+  legend = list(orientation = "h")
+)
+
+p3
+
+```
+
+Mantendo a metodologia anterior, repete-se a análise dos indicadores de tempo utilizando a mediana como padrão de resumo dos dados ([figura @fig-evolucao-mediana]).
+
+```{r}
+dados_gerais_tempo_mediana <- 
+  dados_gerais |> 
+  filter(org_ano_inicio_tratamento %in% vetor_filtro1) |> 
+  select(
+    org_ano_inicio_tratamento,
+    org_mes_inicio_tratamento,
+    tempo_chegada_onsp,
+    tempo_tratamento_onsp,
+    tempo_total
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = factor(org_ano_inicio_tratamento)
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento,
+    #org_mes_inicio_tratamento
+  ) |> 
+  summarise(
+    `Tempo mediano de chegada`=round(median(tempo_chegada_onsp, na.rm = TRUE),digits = 2),
+    `Tempo mediano de tratamento`=round(median(tempo_tratamento_onsp,na.rm= TRUE),digits = 2),
+    `Tempo mediano total`=round(median(tempo_total, na.rm = TRUE),digits = 2)
+  ) |> 
+  pivot_longer(
+    cols = c(`Tempo mediano de chegada`:`Tempo mediano total`),
+    names_to = "Tempos",
+    values_to = "Dias"
+    
+  )
+```
+
+```{r}
+#| label: fig-evolucao-mediana
+#| fig-cap: >
+#|    Evolução das medianas dos indicadores de tempo para análise das manifestações recebidas
+#|    pela Onasp.
+
+p4 <- dados_gerais_tempo_mediana |> 
+  plot_ly(
+    x = ~ org_ano_inicio_tratamento,
+    y = ~ Dias,
+    type = "scatter",
+    mode = "lines+markers",
+    linetype = ~ Tempos,
+    color = ~ Tempos,
+    colors = c("#294661","#7F312F","#808080"),
+    showlegend = TRUE
+  )
+
+p4 <- p4 |> layout(
+  #title = "Tempos médios / 2021",
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "", range = c(0.0)),
+  yaxis = list(title = "Tempo (Dias)"),
+  legend = list(orientation = "h")
+)
+
+p4
+
+```
+
+## Produção {#sec-producao}
+
+```{r}
+producao1 <- 
+  producao |> 
+  filter(org_ano_inicio_tratamento %in% vetor_filtro2) |> 
+  group_by(org_ano_inicio_tratamento) |> 
+  summarise(
+    processos = sum(contagem, na.rm = TRUE),
+    qtd_pessoas = max(qtd_pessoas),
+    indice_producao = max(indice_producao)
+  )
+
+producao2 <- 
+  producao |> 
+  filter(org_ano_inicio_tratamento %in% vetor_filtro2) |> 
+  group_by(org_responsavel_demanda) |> 
+  summarise(
+    total = sum(contagem, na.rm = TRUE)
+  )
+
+producao3 <- producao1 |> filter(org_ano_inicio_tratamento %in% vetor_filtro2) 
+producao3 <- sum(producao3$processos,na.rm = TRUE)
+
+num_colaboradores <- nrow(producao2)
+index_geral <- round(producao3 / num_colaboradores, digits = 0)
+  
+```
+
+O quadro de colaboradores da Ouvidoria Nacional dos Serviços penais é composto de servidores efetivos, servidores cedidos de outros órgãos da administração pública, funcionários terceirizados e estagiários.
+
+A coleta de dados desse quesito iniciou-se em `r min(producao1$org_ano_inicio_tratamento)`. Dessa forma, entre `r min(producao1$org_ano_inicio_tratamento)` e `r max(producao1$org_ano_inicio_tratamento)`, foram tratados um total de `r producao3` processos[^estatisticas_anuais-3] com a participação de `r num_colaboradores` colaboradores distintos. Portanto, o índice de produção geral para todo o período é de `r index_geral` processos por colaborador.
+
+[^estatisticas_anuais-3]: A contagem dos processos nesse quesito considera manifestações em duplicidade.
+
+A tabela a seguir evidencia a quantidade de processos analisados em relação ao número de colaboradores envolvidos nas análises de manifestações no período supracitado. O índice gerado traz informações sobre o desenvolvimento do fluxo de processos dentro da Onasp.
+
+```{r}
+#| label: tbl-producao
+#| tbl-cap: teste
+
+t1_producao <- producao1 
+  
+names(t1_producao) <- c("Ano","Qtd de processos","Número de colaboradores","Índice")
+
+formattable::formattable(
+    t1_producao, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    area(col = c(`Qtd de processos`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Número de colaboradores`)) ~ normalize_bar("lightblue", 0.2),
+    area(col = c(`Índice`)) ~ normalize_bar("#168980", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```

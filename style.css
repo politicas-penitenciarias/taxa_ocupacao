@@ -1,0 +1,69 @@
+```{css}
+body{
+  text-align: justify;
+  font-family: 'Calibri', sans-serif;
+  /*background-color: #294661;
+  opacity: 1.0;*/
+}
+
+h1,h2,h3,h4{
+  color: #294661;
+  font-family: 'Calibri', sans-serif;
+  text-align: justify;
+  text-decoration-color: #294661;
+}
+
+nav.sidebar{
+  font-family: 'Calibri', sans-serif;
+  text-align: start; 
+  
+}
+
+nav{ /*barra de navegacao a direita*/
+  text-align: start;
+}
+
+
+li,ol,menu,dl,{
+  font-family: 'Calibri', sans-serif;
+  text-align: start;
+  color: #294661 ;
+  text-decoration-color: #294661;
+}
+
+p.numbered:before{
+  content: counter(mynum) ": ";
+  counter-increment: mynum;
+  font-weight: bold;
+  color: #294661 ;
+  }
+
+menu.numbered:before{
+  content: counter(mynum) ": ";
+  counter-increment: mynum;
+  font-weight: bold;
+  color: #294661 ;
+  }
+
+li.numbered:before{
+  content: counter(mynum) ": ";
+  counter-increment: mynum;
+  font-weight: bold;
+  color: #294661 ;
+  }
+  
+ol.numbered:before{
+  content: counter(mynum) ": ";
+  counter-increment: mynum;
+  font-weight: bold;
+  color: #294661 ;
+  }
+  
+dl.numbered:before{
+  content: counter(mynum) ": ";
+  counter-increment: mynum;
+  font-weight: bold;
+  color: #294661 ;
+  }
+
+```

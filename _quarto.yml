@@ -1,0 +1,100 @@
+project:
+  type: book
+  output-dir: docs
+
+
+book:
+  title: "Superlotação Carcerária"
+  author: "Lucas Enéas de Rezende"
+  date: today
+  reader-mode: true
+  page-navigation: true
+  page-footer:
+   background: "#294661"
+   center:
+    - text: "Levantamento Nacional de Informações Penitenciárias"
+      href: https://www.gov.br/depen/pt-br
+    - text: "Ministério da Justiça e Segurança Pública - MJSP"
+      href: https://www.gov.br/mj/pt-br
+  cover-image: images/senappen_brasao.png
+  #logo: images/brasao_ouvidoria.jpeg
+  image: images/senappen_brasao.png
+  site-url: https://www.gov.br/depen/pt-br
+  sharing: [twitter, facebook, linkedin]
+  search:
+    location: sidebar
+    type: textbox
+  #downloads: [pdf, epub]
+
+
+
+  sidebar:
+    font.family: 'Calibri'
+    title: "Diretoria de Politicas Penitenciárias"
+    subtitle: "Artigo Científico"
+    background: "white"
+    items:
+    logo: images/senappen_brasao.png
+    style: docked
+    alignment: left
+    tools:
+      - icon: git
+      - href: https://www.gov.br/depen/pt-br/canais_atendimento/ouvidoria
+
+  chapters:
+    - index.qmd
+    - estatisticas_anuais.qmd
+    - estatisticas_2022.qmd
+
+bibliography: referencias.bib
+
+highlight-style: pygments
+
+#always_allow_html: yes
+
+
+format:
+  html:
+    embed-resources: false #COLOCA TODOS OS ARQUIVOS JUNTOS
+    theme: cosmo
+    code-link: true
+    css: style.css
+    code-copy: true
+    #page-layout: custom
+    page-layout: full
+    grid:
+      #sidebar-width: 400px
+      body-width: 1100px
+      margin-width: 200px
+      #gutter-width: 1.5rem
+  pdf:
+    documentclass: report
+    papersize: A4
+    keep-tex: false
+    # pdf-engine: pdflatex
+    # pdf-engine-opt: -outdir=out
+    toc: true
+    number-sections: true
+    colorlinks: true
+    #fontfamily: Calibri
+  # epub:
+  #   cover-image: images/senappen_brasao.png
+
+knitr:
+  opts_chunk:
+    fig.align: "center"
+    message: false
+    echo: false
+    results: true
+    dpi: 300
+    warning: false
+    out-width: NULL
+    fig.responsive: TRUE
+
+
+lang: pt
+csl: abnt.csl
+
+editor: visual
+
+

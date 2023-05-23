@@ -1,0 +1,2371 @@
+# Parâmetros 2022 {#sec-dados-ouvidoria-2022}
+
+```{r message=FALSE}
+library(tidyverse)
+library(knitr)
+library(plotly)
+library(kableExtra)
+library(DT)
+library(gganimate)
+library(formattable)
+library(abjutils)
+library(janitor)
+
+cores <- c("#294661","#7F312F","#808080","#B8860B","#5E3B56","#5F9EA0","#808000","#A0522D",
+           "#F5DEB3","#FF9900","#8B008B","#5F6B6D","#FB8281","#F4D25A","#7F898A","#A4DDEE",
+           "#FDAB89","#B687AC","#28738A","#A78F8F","#168980","darkred","#0000FF","#00FFFF",
+           "#DAA520","#DEB887") #VETOR DE CORES PARA OS GRAFICOS
+
+
+meses <- c("Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez")
+
+vetor_filtro <- 2022
+
+dados_gerais <- 
+  readRDS(
+    file = "../bases_tidy/rel1_dados_gerais.rds",
+    #fileEncoding = "UTF-8"
+  ) |> 
+  filter(org_ano_inicio_tratamento == vetor_filtro)
+
+tipos_demandas <-
+  readRDS(
+    file = "../bases_tidy/rel2_tipos_demandas.rds"
+  )|> 
+  filter(org_ano_inicio_tratamento == vetor_filtro)
+
+encaminhamento_demandas <-
+  readRDS(
+    file = "../bases_tidy/rel13_encaminhamentos.rds"
+  )|> 
+  filter(org_ano_inicio_tratamento == vetor_filtro)
+
+solicitacoes <- 
+  readRDS(
+    file = "../bases_tidy/rel3_solicitacoes.rds"
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = lubridate::year(org_data_inicio_tratamento)
+  )|> 
+  filter(org_ano_inicio_tratamento == vetor_filtro)
+
+juridicas <- 
+  readRDS(
+    file = "../bases_tidy/rel3.1_assistencia_juridica.rds"
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = lubridate::year(org_data_inicio_tratamento)
+  )|> 
+  filter(org_ano_inicio_tratamento == vetor_filtro)
+
+denuncias <- 
+  readRDS(
+    file = "../bases_tidy/rel4.1_denuncias_tipo.rds"
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = lubridate::year(org_data_inicio_tratamento)
+  )|> 
+  filter(org_ano_inicio_tratamento == vetor_filtro)
+
+denuncias_denunciado <- 
+  readRDS(
+    file = "../bases_tidy/rel4.2_denuncias_denunciado.rds"
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = lubridate::year(org_data_inicio_tratamento)
+  )|> 
+  filter(org_ano_inicio_tratamento == vetor_filtro)
+
+reclamacoes <- 
+  readRDS(
+    file = "../bases_tidy/rel5.1_reclamacoes_tipo.rds"
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = lubridate::year(org_data_inicio_tratamento)
+  )|> 
+  filter(org_ano_inicio_tratamento == vetor_filtro)
+
+sugestoes <- 
+  readRDS(
+    file = "../bases_tidy/rel6.1_sugestoes_tipo.rds"
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = lubridate::year(org_data_inicio_tratamento)
+  )|> 
+  filter(org_ano_inicio_tratamento == vetor_filtro)
+
+elogios <- 
+  readRDS(
+    file = "../bases_tidy/rel7.1_elogios_tipo.rds"
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = lubridate::year(org_data_inicio_tratamento)
+  )|> 
+  filter(org_ano_inicio_tratamento == vetor_filtro)
+
+producao <- 
+  readRDS(
+      file = "../bases_tidy/rel8_index_producao.rds"
+  )|> 
+  filter(org_ano_inicio_tratamento == vetor_filtro)
+
+```
+
+Este capítulo traz as informações pormenorizadas acerca das solicitações, denúncias, reclamações, sugestões, elogios e/ou agradecimentos realizadas à Onasp no ano de `r vetor_filtro`.
+
+Principalmente, objetiva-se quantificar o trabalho exercido pela Onasp. Especificamente, este capítulo visa gerar índices qualitativos / quantitativos para apoio a tomada de decisão dos gestores e supervisionar o andamento das atividades de ouvidoria em âmbito nacional.
+
+São analisados - numericamente e graficamente - os seguintes aspectos: características dos processos recebidos ([seção @sec-caracteristicas-processos-2022]); demandas tipificadas como solicitações ([seção @sec-solicitacoes-2022]); denúncias ([seção @sec-denuncias-2022]); reclamações ([seção @sec-reclamacoes-2022]); sugestões ([seção @sec-sugestoes-2022]); elogios ou agradecimentos ([seção @sec-elogios-2022]); e evolução dos índices gerados para controle do tempo de atendimento dos processos ([seção @sec-tempos-2022]).
+
+A partir de 2022, foram implementadas novas informações à base de dados da ouvidoria, nesse sentido, identificam-se o órgãos / instituições responsáveis pelo acompanhamento e/ou fiscalização das manifestações. Sendo assim, a [seção @sec-tipos-demandas-encaminhamento-2022] evidencia os encaminhamentos dados aos processos, a [seção @sec-encaminhamento-solicitacoes-2022] diz respeito aos encaminhamentos dados às solicitações, a [seção @sec-denuncias-encaminhamento-2022] trata os direcionamentos das denúncias, a [seção @sec-reclamacoes-encaminhamento-2022] lista os órgãos responsáveis pelas reclamações, a [seção @sec-encaminhamento-sugestoes-2022] mostra as sugestões encaminhadas às instituições e, por fim, a [seção @sec-elogios-encaminhamento-2022] a trata dos órgãos elogiados ou agradecimentos aos mesmos.
+
+::: callout-important
+## Importante!!!
+
+*Todas as análises contidas neste relatório tem o início do tratamento da demanda como data de referência.*
+:::
+
+Por fim, durante todo o capítulo, são utilizados recursos gráficos e tabelas para melhor entendimento do comportamento das variáveis envolvidas no processo de análise.
+
+## Sobre os meios de acesso à Ouvidoria {#sec-meios-acesso-ouvidoria-2022}
+
+```{r}
+dados_gerais_apresentacao <- 
+  dados_gerais|> 
+  filter(
+    !is.na(org_apresentacao_demanda),
+    org_apresentacao_demanda != "N/A",
+    org_apresentacao_demanda != ""
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento,
+    org_apresentacao_demanda
+  ) |> 
+  summarise(
+    qtd = n()
+  ) |> 
+  ungroup() |>
+  group_by(
+    org_ano_inicio_tratamento
+  ) |>
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = str_c(round((qtd / total)*100, digits = 2),"%"),
+    org_ano_inicio_tratamento = as.factor( org_ano_inicio_tratamento),
+    #valores = str_c(qtd,porcentagem, sep = "; ")
+  ) |>
+ arrange(desc(org_ano_inicio_tratamento)) |> 
+  select(
+    org_ano_inicio_tratamento,
+    org_apresentacao_demanda,
+    qtd
+  ) |> 
+  pivot_wider(
+    names_from = org_apresentacao_demanda,
+    values_from = qtd
+  )
+
+dados_gerais_apresentacao2 <- 
+  dados_gerais|> 
+  filter(
+    !is.na(org_apresentacao_demanda),
+    org_apresentacao_demanda != "N/A",
+    org_apresentacao_demanda != ""
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento,
+    org_apresentacao_demanda
+  ) |> 
+  summarise(
+    qtd = n()
+  )|> 
+  ungroup() |>
+  group_by(
+    org_ano_inicio_tratamento
+  ) |>
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = round((qtd / total)*100, digits = 2),
+    org_ano_inicio_tratamento = as.factor( org_ano_inicio_tratamento),
+    #valores = str_c(qtd,porcentagem, sep = "; ")
+  ) |>
+ arrange(desc(org_ano_inicio_tratamento)) |> 
+  select(
+    org_ano_inicio_tratamento,
+    org_apresentacao_demanda,
+    qtd,
+    porcentagem
+  ) 
+```
+
+O sistema prisional possui várias particularidades em sua organização. Uma delas diz respeito à impossibilidade de acesso aos meios tecnológicos para elaboração e envio de demandas às ouvidorias por parte das pessoas privadas de liberdade. Como consequência, em `r vetor_filtro` teve-se `r str_c(max(dados_gerais_apresentacao2$porcentagem),"%")` dos processos representados via cartas. A visualização na [figura @fig-apresentacao-2022] abaixo traz os valores absolutos e relativos para o período supracitado.
+
+```{r}
+#| label: fig-apresentacao-2022
+#| fig-cap: >  
+#|       O gráfico de barras (esquerda) traz as quantidades de demandas por forma
+#|       de apresentação em valores absolutos, enquanto o gráfico de setor (direita)
+#|       mostra a informação em valores relativos.
+#| fig-subcap:
+#|     - "Valores Absolutos"
+#|     - "Valores Relativos"
+#| layout-ncol: 2
+
+ 
+p1 <- dados_gerais_apresentacao |>
+  filter(org_ano_inicio_tratamento == vetor_filtro) |> 
+  plot_ly(
+    x = ~ org_ano_inicio_tratamento,
+    y = ~ Carta,
+    name = "Carta",
+    type = 'bar',
+    text = ~ Carta,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#294661")
+  )
+
+p1 <- p1 |> 
+  add_trace(
+    y = ~`Fala.BR`,
+    name = "Fala.BR",
+    type = 'bar',
+    text = ~`Fala.BR`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#808080")
+  )
+
+p1 <- p1 |> 
+  add_trace(
+    y = ~`E-mail`,
+    name = "E-mail",
+    type = 'bar',
+    text = ~`E-mail`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#7F312F")
+  )
+
+p1 <- p1 |> 
+  add_trace(
+    y = ~`Ofício`,
+    name = "Ofício",
+    type = 'bar',
+    text = ~`Ofício`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#B8860B")
+  )
+
+p1 <- p1 |> layout(
+  #title = "Tempos médios / 2021",
+  uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Quantidade de Manifestações"),
+  legend = list(orientation = "v")
+)
+
+p1
+
+p1_relativo <- dados_gerais_apresentacao2 |>
+  filter(org_ano_inicio_tratamento == vetor_filtro) |> 
+  plot_ly(
+    labels = ~ org_apresentacao_demanda,
+    values = ~ porcentagem,
+    type = 'pie',
+    hole = 0.6,
+    textinfo = "percent", #label+percent,
+    hoverinfo = 'text+percent',
+    text = ~ org_apresentacao_demanda,
+    textposition = "auto",
+    font = list(family = "Calibri", color = "#294661", size = 14),
+    alpha = 0.7,
+    marker = list(colors = cores,
+                  line = list(color = '#FFFFFF', width = 1) #LINHA DE SEPARACAO DOS SETORES
+              ),
+    showlegend = TRUE
+  )
+
+p1_relativo <-p1_relativo |> layout(
+  #title = "Tempos médios / 2021",
+  uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  #xaxis = list(title = ""),
+  #yaxis = list(title = "Quantidade de Manifestações"),
+  legend = list(orientation = "v")
+)
+
+p1_relativo
+
+```
+
+## Sobre a aptidão ao tratamento das demandas {#sec-aptidao-2022}
+
+```{r}
+dados_gerais_aptidao <- 
+  dados_gerais |>
+  dplyr::select(
+    org_ano_inicio_tratamento,
+    dem001_demanda_apta,
+    dem002_demanda_motivo_inaptidao
+  ) |> 
+  mutate(org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento))
+
+dados_gerais_aptidao1 <- 
+  dados_gerais_aptidao |> 
+  count(
+    dem001_demanda_apta
+  ) |> 
+  mutate(
+    total = sum(n, na.rm = TRUE),
+    porcentagem = round((n / total)*100, digits = 2)  
+  ) |>  
+ arrange(desc(porcentagem))
+
+dados_gerais_aptidao2 <- 
+  dados_gerais_aptidao |> 
+  filter(dem001_demanda_apta == "Não") |> 
+   group_by(
+   org_ano_inicio_tratamento,
+   dem002_demanda_motivo_inaptidao
+  ) |> 
+  summarise(
+    qtd = n()
+  ) |> 
+  pivot_wider(
+    names_from = dem002_demanda_motivo_inaptidao,
+    values_from = qtd
+  )
+
+dados_gerais_aptidao3 <- 
+  dados_gerais_aptidao |> 
+  filter(dem001_demanda_apta == "Não") |> 
+   group_by(
+   org_ano_inicio_tratamento,
+   dem002_demanda_motivo_inaptidao
+  ) |> 
+  summarise(
+    qtd = n()
+  )|> 
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = round((qtd / total)*100, digits = 2),
+    dem002_demanda_motivo_inaptidao = case_when(
+      dem002_demanda_motivo_inaptidao == "Não compete à onsp" ~ "Não compete à Onasp",
+      TRUE ~ dem002_demanda_motivo_inaptidao
+    )
+    
+  ) |>  
+ arrange(desc(porcentagem))
+  
+
+```
+
+O fluxo de análise das manifestações prevê o enquadramento da aptidão da mesma em relação ao trabalho de ouvidoria. Nesse sentido, classifica-se as demandas em **aptas** ou **não aptas**. O ano de `r max(vetor_filtro)` trouxe `r max(dados_gerais_aptidao1$n)` processos contendo demandas aptas, ou seja, `r max(str_c(dados_gerais_aptidao1$porcentagem,"%"))` do total.
+
+O gráfico na [figura @fig-aptidao1-2022] traz os motivos da inaptidão das demandas e suas respectivas grandezas em valores absolutos e relativos.
+
+```{r}
+#| label: fig-aptidao1-2022
+#| fig-cap: >  
+#|       O gráfico de barras (esquerda) mostra as opções para inaptidão das demandas em valores absolutos,
+#|       enquanto o gráfico de setor (direita) evidencia a mesma informação em valores relativos.
+#| fig-subcap:
+#|     - "Valores Absolutos"
+#|     - "Valores Relativos"
+#| layout-ncol: 2
+
+
+names(dados_gerais_aptidao2) <- 
+  c("org_ano_inicio_tratamento","Duplicidade","Falta de informações", "Falta de nexo e/ou clareza","Não compete à onsp")
+
+p2 <- dados_gerais_aptidao2 |>
+  plot_ly(
+    x = ~ org_ano_inicio_tratamento,
+    y = ~`Não compete à onsp`,
+    name = "Não compete à Onasp",
+    type = 'bar',
+    text = ~ `Duplicidade`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#294661")
+  )
+
+p2 <- p2 |>
+  add_trace(
+    y = ~ `Duplicidade`,
+    name = "Duplicidade",
+    type = 'bar',
+    text = ~`Não compete à onsp`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#7F312F")
+  )
+
+p2 <- p2 |>
+  add_trace(
+    y = ~ `Falta de nexo e/ou clareza`,
+    name = "Falta de nexo e/ou clareza",
+    type = 'bar',
+    text = ~ `Falta de nexo e/ou clareza`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#808080")
+  )
+
+p2 <- p2 |>
+  add_trace(
+    y = ~`Falta de informações`,
+    name = "Falta de informações",
+    type = 'bar',
+    text = ~`Falta de informações`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#B8860B")
+  )
+
+p2 <- p2 |> layout(
+  #title = "Tempos médios / 2021",
+  uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Quantidade de Manifestações"),
+  legend = list(orientation = "v")
+)
+p2
+
+p2_relativo <- dados_gerais_aptidao3 |>
+  plot_ly(
+    labels = ~ dem002_demanda_motivo_inaptidao,
+    values = ~ porcentagem,
+    type = 'pie',
+    hole = 0.6,
+    textinfo = "percent", #label+percent,
+    hoverinfo = 'text+percent',
+    text = ~ dem002_demanda_motivo_inaptidao,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(colors = cores,
+                  line = list(color = '#FFFFFF', width = 1) #LINHA DE SEPARACAO DOS SETORES
+              ),
+    showlegend = TRUE
+  )
+
+p2_relativo <-  p2_relativo |> layout(
+  #title = "Tempos médios / 2021",
+  uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  #xaxis = list(title = ""),
+  #yaxis = list(title = "Quantidade de Manifestações"),
+  legend = list(orientation = "v")
+)
+
+p2_relativo
+
+```
+
+## Características dos processos {#sec-caracteristicas-processos-2022}
+
+A partir de agora, inicia-se a análise dos processos recebidos e tratados pela Onasp caracterizando as demandas de acordo com o regimento interno da Senappen em: solicitações; denúncias; reclamações; sugestões; e elogios / agradecimentos.
+
+Primeiramente, verifica-se a relevância numérica apoiada nos valores absolutos e relativos das ocorrências de cada tipo de demanda ([seção @sec-tipos-processos-2022]). Em um segundo momento, na [seção @sec-tipos-demandas-encaminhamento-2022], lista-se os órgãos e instituições os quais foram direcionadas as manifestações para controle, acompanhamento, investigação e/ou providências jurídicas.
+
+Necessário constar que as análises realizadas, a partir deste tópico, se referem às demandas consideradas aptas.
+
+### Tipos de processos {#sec-tipos-processos-2022}
+
+```{r}
+dados_gerais_tipos_demandas <- 
+  tipos_demandas|> 
+  group_by(
+    org_ano_inicio_tratamento,
+    tipo_demanda
+  ) |> 
+  summarise(
+    qtd = n()
+  ) |> 
+  ungroup() |> 
+  group_by(
+    org_ano_inicio_tratamento,
+    ) |> 
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = round((qtd / total)*100, digits = 2)  
+  ) |>  
+  arrange(org_ano_inicio_tratamento, desc(porcentagem)) |> 
+  mutate(
+      tipo_demanda = factor(
+      tipo_demanda, 
+      levels = c("Solicitação","Denúncia","Reclamação","Sugestão","Elogio e/ou agradecimento"), 
+      ordered = TRUE),
+      org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento)
+  )
+
+dados_gerais_tipos_demandas2 <-
+  dados_gerais_tipos_demandas |> 
+  select(org_ano_inicio_tratamento:qtd) |>
+  filter(org_ano_inicio_tratamento == vetor_filtro) |> 
+  pivot_wider(
+    names_from = tipo_demanda,
+    values_from = qtd
+  )
+
+
+```
+
+A ano de `r vetor_filtro` trouxe `r max(dados_gerais_aptidao1$n)` processos com demandas aptas à encaminhamento. Nesse sentido, a tabela abaixo separa os processos de acordo com suas características (tipos) e mostra os quantitativos absolutos e relativos para cada ano e tipo de demanda. Vale ressaltar que, em um mesmo processo, pode haver vários tipos de manifestações. Consequentemente, a soma de todos os tipos de manifestações é superior à quantidade total de processos, pois, em um mesmo processo pode haver várias manifestações.
+
+```{r}
+#| label: tbl-demandas1-2022
+#| tbl-cap: >
+#|   Tipificação dos processos recebidos pela Ouvidoria Nacional dos Serviços Penais.
+    
+
+t3 <- dados_gerais_tipos_demandas |> 
+  select(
+    org_ano_inicio_tratamento, tipo_demanda, qtd,porcentagem 
+  ) 
+names(t3) <- c("Ano","Tipo de demanda","Quantidade","Qtd. relativa (%)")
+
+formattable::formattable(
+    t3, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo de demanda` = color_tile("lightblue","lightyellow"),
+    
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Qtd. relativa (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+      info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+      paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+      url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+O gráfico na [figura @fig-tipo-demanda-2022] deixa clara a diferenciação quantitativa das características dos processos contendo solicitações. Sendo `r max(dados_gerais_tipos_demandas$qtd)` demandas tipificadas dessa maneira, ou seja, `r str_c(max(dados_gerais_tipos_demandas$porcentagem),"%")` são consideradas como **pedidos** de diversos modos.
+
+```{r}
+#| label: fig-tipo-demanda-2022
+#| fig-cap: >  
+#|       O gráfico de barras (esquerda) mostra, em valores absolutos, as quantidades de processos categorizados por tipo.
+#|       O gráfico de setor (direita) evidencia a mesma informação em valores relativos.
+#| fig-subcap:
+#|     - "Valores Absolutos"
+#|     - "Valores Relativos"
+#| layout-ncol: 2
+
+ 
+p3 <-dados_gerais_tipos_demandas2 |>
+  plot_ly(
+    x = ~ org_ano_inicio_tratamento,
+    y = ~ `Solicitação`,
+    name = "Solicitação",
+    type = 'bar',
+    text = ~ `Solicitação`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#294661")
+  )
+
+p3 <- p3 |> 
+  add_trace(
+    y = ~`Denúncia`,
+    name = "Denúncia",
+    type = 'bar',
+    text = ~`Denúncia`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#7F312F")
+  )
+
+p3 <- p3 |> 
+  add_trace(
+    y = ~`Reclamação`,
+    name = "Reclamação",
+    type = 'bar',
+    text = ~`Reclamação`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#808080") 
+  )
+
+p3 <- p3 |> 
+  add_trace(
+    y = ~`Elogio e/ou agradecimento`,
+    name = "Elogio e/ou agradecimento",
+    type = 'bar',
+    text = ~`Elogio e/ou agradecimento`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#B8860B") 
+  )
+
+p3 <- p3 |> 
+  add_trace(
+    y = ~`Sugestão`,
+    name = "Sugestão",
+    type = 'bar',
+    text = ~`Sugestão`,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(color = "#5E3B56") 
+  )
+
+
+
+p3 <- p3 |> layout(
+  #title = "Tempos médios / 2021",
+  uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Quantidade de Manifestações"),
+  legend = list(orientation = "v")
+)
+
+p3
+
+p3_relativo <- dados_gerais_tipos_demandas |>
+  plot_ly(
+    labels = ~ tipo_demanda,
+    values = ~ porcentagem,
+    type = 'pie',
+    hole = 0.6,
+    textinfo = "percent", #label+percent,
+    hoverinfo = 'text+percent',
+    text = ~ tipo_demanda,
+    textposition = "auto",
+    alpha = 0.7,
+    marker = list(colors = cores,
+                  line = list(color = '#FFFFFF', width = 1) #LINHA DE SEPARACAO DOS SETORES
+              ),
+    showlegend = TRUE
+  )
+
+p3_relativo <-p3_relativo |> layout(
+  #title = "Tempos médios / 2021",
+  uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  #xaxis = list(title = ""),
+  #yaxis = list(title = "Quantidade de Manifestações"),
+  legend = list(orientation = "v")
+)
+
+p3_relativo
+```
+
+### Encaminhamento das demandas {#sec-tipos-demandas-encaminhamento-2022}
+
+```{r}
+encaminhamento1 <- 
+   encaminhamento_demandas |> 
+  group_by(org_ano_inicio_tratamento, instituicao_encaminhamento) |> 
+  summarise(
+    qtd = n()
+  ) |> 
+  ungroup() |> 
+  mutate(
+    soma = sum(qtd,na.rm = TRUE),
+    porcentagem = round((qtd / soma)*100, digits = 2)
+  ) |> 
+  arrange(desc(porcentagem)) |> 
+  mutate(
+    instituicao_encaminhamento = factor(instituicao_encaminhamento, levels = instituicao_encaminhamento, ordered = TRUE)
+  )
+
+encaminhamento2 <- 
+  encaminhamento_demandas |> 
+  group_by(org_ano_inicio_tratamento, tipo_demanda, instituicao_encaminhamento) |> 
+  summarise(
+    qtd = n()
+  ) |>  
+  ungroup() |> 
+  group_by(tipo_demanda) |> 
+  mutate(
+    soma = sum(qtd,na.rm = TRUE),
+    porcentagem = round((qtd / soma)*100, digits = 2)
+  ) |> 
+  arrange(desc(porcentagem))
+
+```
+
+O fluxo do processo de tratamento das manifestações dentro da Onasp prevê o encaminhamento das mesmas para as instituições fiscalizadoras responsáveis pelo acompanhamento e providências em relação às manifestações. Nesse sentido, a tabela abaixo resume os quantitativos de demandas para cada órgão. No total, soma-se `r sum(encaminhamento2$qtd)` encaminhamentos realizados em `r vetor_filtro` [^estatisticas_2022-1].
+
+[^estatisticas_2022-1]: A coleta de dados para esse quesito iniciou-se em dezembro de 2021.
+
+```{r}
+#| label: tbl-encaminhamento_demandas-2022
+#| tbl-cap: >
+#|   Relação de insituições responsáveis pelo acompanhamento das manifestações recebidas pela Ouvidoria Nacional dos Serviços Penais.
+    
+
+t1_encaminhamento_demandas <- 
+  encaminhamento1 |> 
+  select(
+    -soma 
+  ) 
+names(t1_encaminhamento_demandas) <- c("Ano","Instituição","Quantidade","Qtd. relativa (%)")
+
+formattable::formattable(
+    t1_encaminhamento_demandas, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Instituição` = color_tile("lightblue","lightyellow"),
+    
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Qtd. relativa (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+      info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+      paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+      url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+A [figura @fig-graf-encaminhamentos-2022] representa graficamente os valores resumidos na tabela anterior.
+
+```{r}
+#| label: fig-graf-encaminhamentos-2022
+#| fig-cap: >  
+#|       Rol de instituições responsáveis pelos acompanhamentos e tratativas das manifestações.
+
+p7 <- encaminhamento1 |> 
+  plot_ly(
+    x = ~ instituicao_encaminhamento,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ instituicao_encaminhamento,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+p7 <- p7 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(encaminhamento1$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+
+p7
+
+```
+
+## Solicitações {#sec-solicitacoes-2022}
+
+Este tópico trata das demandas tipificadas como **solicitações**. Sendo assim, visa quantificar e mensurar a importância desse tipo de manifestação.
+
+Na [seção @sec-tipos-solicitacoes-2022] lista-se o rol de solicitações de acordo com a característica do pedido. Enquanto isso, na [seção @sec-encaminhamento-solicitacoes-2022], tem-se os órgãos fiscalizadores para os quais os processos foram encaminhados.
+
+### Tipos de solicitações {#sec-tipos-solicitacoes-2022}
+
+```{r}
+solicitacoes1 <- 
+  solicitacoes |> 
+  count(
+    org_ano_inicio_tratamento,
+    tipo_solicitacao,
+    name = "qtd"
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento
+  ) |> 
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = round((qtd/total)*100, digits = 2)
+  ) |> 
+  arrange(org_ano_inicio_tratamento, desc(qtd)) |> 
+  mutate(
+    tipo_solicitacao = factor(tipo_solicitacao, levels = tipo_solicitacao,ordered = TRUE)
+  )
+
+solicitacoes3 <- 
+  solicitacoes1 |> 
+  arrange(desc(qtd)) |> 
+  head(7)
+  
+```
+
+Conforme já citado na [seção @sec-tipos-processos-2022], as solicitações representam `r str_c(max(dados_gerais_tipos_demandas$porcentagem),"%")` do total de demandas recebidas pela Onasp.
+
+A próxima tabela lista as quantidades de solicitações separadas por seus respectivos motivos.
+
+```{r}
+#| label: tbl-tipos-solicitacoes-2022
+#| tbl-cap: >
+#|   Lista de solicitações com valores absolutos e seus respectivos percentuais a cada ano.
+
+t1_solicitacoes <- solicitacoes1 |> select(org_ano_inicio_tratamento,tipo_solicitacao,qtd,porcentagem)
+names(t1_solicitacoes) <- c("Ano","Tipo de Solicitação","Quantidade","Valor relativo (%)")
+
+formattable::formattable(
+    t1_solicitacoes, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo de Solicitação` = color_tile("lightblue","lightyellow"),
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Valor relativo (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+   )
+  #pageLength = 5
+    )
+  ) 
+```
+
+ 
+
+O quadro na [figura @fig-graf-tipos-solicitacoes-2022] mostra os `r nrow(solicitacoes3)` tipos mais recorrentes de solicitações. Nota-se a discrepância percentual das solicitações de **Assistência Jurídica** com `r str_c(max(solicitacoes3$porcentagem),"%")` de incidência.
+
+```{r}
+#| label: fig-graf-tipos-solicitacoes-2022
+#| fig-cap: >  
+#|       Tipificação das solicitações em seus valores absolutos e percentuais.
+
+
+p4 <- solicitacoes3 |> 
+  plot_ly(
+    x = ~ tipo_solicitacao,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ tipo_solicitacao,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+p4 <- p4 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(solicitacoes3$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+
+p4
+```
+
+### Encaminhamento de Solicitações {#sec-encaminhamento-solicitacoes-2022}
+
+Nesse momento, repete-se a análise realizada na [seção @sec-tipos-demandas-encaminhamento-2022], porém com o rol de instituições reduzido às solicitações.
+
+```{r}
+#| label: tbl-encaminhamento_solicitacoes-2022
+#| tbl-cap: >
+#|   Relação de insituições responsáveis pelo acompanhamento das manifestações recebidas pela Ouvidoria Nacional dos Serviços Penais.
+    
+
+t1_encaminhamento_solicitacoes <- 
+  encaminhamento2 |> 
+  select(
+    -soma 
+  ) |> 
+  filter(tipo_demanda == "Solicitação") |> 
+  mutate(
+    tipo_demanda = as.factor(tipo_demanda),
+    instituicao_encaminhamento = factor(instituicao_encaminhamento, levels=instituicao_encaminhamento, ordered = TRUE)
+  )
+names(t1_encaminhamento_solicitacoes) <- c("Ano","Tipo de demanda","Instituição","Quantidade","Qtd. relativa (%)")
+
+formattable::formattable(
+    t1_encaminhamento_solicitacoes, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo de demanda` = color_tile("orange","lightgrey"),
+    `Instituição` = color_tile("lightblue","lightyellow"),
+    
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Qtd. relativa (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+      info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+      paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+      url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+```{r}
+#| label: fig-graf-encaminhamentos-solicitacoes-2022
+#| fig-cap: >  
+#|       Rol de instituições responsáveis pelos acompanhamentos e tratativas das manifestações.
+
+max_eixo <- encaminhamento2 |> filter(tipo_demanda == "Solicitação")
+
+p8 <- encaminhamento2 |> 
+   select(
+    -soma 
+  ) |> 
+  filter(tipo_demanda == "Solicitação") |> 
+  mutate(
+    instituicao_encaminhamento = factor(instituicao_encaminhamento,levels=instituicao_encaminhamento,ordered = TRUE)
+  ) |> 
+  plot_ly(
+    x = ~ instituicao_encaminhamento,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ instituicao_encaminhamento,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+p8 <- p8 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(max_eixo$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+
+p8
+
+```
+
+### Solicitações de assistência jurídica {#sec-assistencia-juridica-2022}
+
+```{r}
+juridicas1 <- 
+  juridicas |> 
+  count(
+    org_ano_inicio_tratamento,
+    tipo_assistencia_juridica,
+    name = "qtd"
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento
+  ) |> 
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = round((qtd/total)*100, digits = 2)
+  ) |> 
+  arrange(desc(qtd)) |>
+  mutate(
+    tipo_assistencia_juridica = factor(tipo_assistencia_juridica, levels = tipo_assistencia_juridica, ordered = TRUE)
+  )
+
+num_row_jur1 <- juridicas1 |> head(10)
+```
+
+Como visto na [seção @sec-tipos-solicitacoes-2022], os pedidos de assistência jurídica tem grande recorrência, nesse sentido, nota-se a necessidade de criar o rol de espeficidades para esse tipo de solicitação.
+
+A tabela abaixo evidencia os principais tipos de assistência jurídica.
+
+Percebe-se grande incidência de pedidos de **Revisão Criminal**. Nesse caso, os manifestantes requerem, prioritariamente, revisão de processo e/ou pena sob o argumento da ocorrência de erro do poder judiciário ou quando do surgimento de novas provas de inocência da pessoa privada de liberdade.
+
+```{r}
+#| label: tbl-tipos-assistencia-juridica-2022
+#| tbl-cap: >
+#|   Assistência Jurídicas tipificadas e seus valores absolutos e relativos.
+
+t1_juridicas <- juridicas1 |> select(org_ano_inicio_tratamento,tipo_assistencia_juridica,qtd,porcentagem)
+names(t1_juridicas) <- c("Ano","Tipo","Quantidade","Valor relativo (%)")
+
+formattable::formattable(
+    t1_juridicas, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo` = color_tile("lightblue","lightyellow"),
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Valor relativo (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+   )
+  #pageLength = 5
+    )
+  ) 
+```
+
+ 
+
+A [figura @fig-graf-tipos-juridicas-2022] mostra os valores e suas proporções graficamente para os `r nrow(num_row_jur1)` mais relevantes tipos de assistências jurídicas.
+
+```{r}
+#| label: fig-graf-tipos-juridicas-2022
+#| fig-cap: >  
+#|       Tipos de Assistências jurídicas e seus valores absolutos e percentuais.
+
+
+p5 <- juridicas1 |> 
+  plot_ly(
+    x = ~ tipo_assistencia_juridica,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ tipo_assistencia_juridica,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+p5 <- p5 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(juridicas1$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+
+p5
+```
+
+## Denúncias {#sec-denuncias-2022}
+
+As denúncias recebidas são tratadas e acompanhadas de forma especial pelo teor de seus relatos. Os tipos de denúncias são voltadas, especialmente, à percepção de **maus tratos, torturas, ameaças**, **abuso de poder e corrupção por parte de autoridades**, **condições insalubres de permanência no estabelecimento prisional**, **privação de direitos**, entre outros.
+
+Esta seção traz um resumo numérico do comportamento dos tipos de denúncia ([seção @sec-tipos-denuncias-2022]), o rol de órgãos responsáveis pelos procedimentos de apuração ([seção @sec-denuncias-encaminhamento-2022]) e o perfil do cargo ocupado pelo denunciado ([seção @sec-denuncias-denunciado-2022]).
+
+### Tipos de Denúncias {#sec-tipos-denuncias-2022}
+
+```{r}
+denuncias1 <- 
+  denuncias |> 
+  count(
+    org_ano_inicio_tratamento,
+    tipo_denuncia,
+    name = "qtd"
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento
+  ) |> 
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = round((qtd/total)*100, digits = 2)
+  ) |> 
+  arrange(desc(qtd)) |>
+  mutate(
+    tipo_denuncia = factor(tipo_denuncia, levels =tipo_denuncia, ordered = TRUE)
+  )
+
+```
+
+O ano de `r vetor_filtro` teve `r sum(denuncias1$qtd)` denúncias realizadas pelos próprios custodiados, amigos, advogados e/ou familiares. O próximo quadro tabula o rol de denúncias e a importância numérica de cada item.
+
+```{r}
+#| label: tbl-tipos-denuncias-2022
+#| tbl-cap: >
+#|   Denúncias tipificadas e seus valores absolutos e relativos.
+
+t1_denuncias <- denuncias1 |> select(org_ano_inicio_tratamento,tipo_denuncia,qtd,porcentagem)
+names(t1_denuncias) <- c("Ano","Tipo","Quantidade","Valor relativo (%)")
+
+formattable::formattable(
+    t1_denuncias, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo` = color_tile("lightblue","lightyellow"),
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Valor relativo (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+   )
+  #pageLength = 5
+    )
+  ) 
+```
+
+ 
+
+O gráfico na [figura @fig-graf-tipos-denuncias-2022] mostra os `r nrow(head(denuncias1,n=10))` tipos de denúncias mais recorrentes. Nota-se que, relatos de **maus tratos, torturas e ameaças** são comuns relativizando `r str_c(denuncias1$porcentagem[1],"%")` dos casos.
+
+```{r}
+#| label: fig-graf-tipos-denuncias-2022
+#| fig-cap: >  
+#|       Tipificação das denúncias apresentadas em seus valores absolutos e percentuais.
+
+
+p6 <- denuncias1 |> 
+  head(10) |> 
+  plot_ly(
+    x = ~ tipo_denuncia,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ tipo_denuncia,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+p6 <- p6 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(denuncias1$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+p6
+```
+
+### Denúncias - Encaminhamento {#sec-denuncias-encaminhamento-2022}
+
+Para as demandas enquadradas como **denúncia**, obteve-se `r sum(encaminhamento2$qtd)` encaminhamentos para outros órgãos. [^estatisticas_2022-2].
+
+[^estatisticas_2022-2]: A coleta de dados para esse quesito iniciou-se em dezembro de 2021.
+
+```{r}
+#| label: tbl-encaminhamento-denuncias-2022
+#| tbl-cap: >
+#|   Relação de instituições responsáveis pelo acompanhamento das denúncias recebidas pela Ouvidoria Nacional dos Serviços Penais.
+    
+
+t1_encaminhamento_denuncias <- 
+  encaminhamento2 |> 
+  select(
+    -soma 
+  ) |> 
+  filter(tipo_demanda == "Denúncia") |> 
+  mutate(
+    tipo_demanda = as.factor(tipo_demanda),
+    instituicao_encaminhamento = factor(instituicao_encaminhamento, levels=instituicao_encaminhamento, ordered = TRUE)
+  )
+names(t1_encaminhamento_denuncias) <- c("Ano","Tipo","Instituição","Quantidade","Qtd. relativa (%)")
+
+formattable::formattable(
+    t1_encaminhamento_denuncias, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo` = color_tile("orange","lightgrey"),
+    `Instituição` = color_tile("lightblue","lightyellow"),
+    
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Qtd. relativa (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+      info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+      paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+      url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+```{r}
+#| label: fig-graf-encaminhamentos-denuncias-2022
+#| fig-cap: >  
+#|       Rol de instituições responsáveis pelos acompanhamentos e tratativas das manifestações.
+
+max_eixo <- encaminhamento2 |> filter(tipo_demanda == "Denúncias")
+p9 <- encaminhamento2 |> 
+   select(
+    -soma 
+  ) |> 
+  filter(tipo_demanda == "Denúncia") |> 
+  mutate(
+    instituicao_encaminhamento = factor(instituicao_encaminhamento,levels=instituicao_encaminhamento,ordered = TRUE)
+  ) |> 
+  plot_ly(
+    x = ~ instituicao_encaminhamento,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ instituicao_encaminhamento,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+
+p9 <- p9 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(max_eixo$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+
+p9
+
+```
+
+### Denúncias - Perfil dos denunciados {#sec-denuncias-denunciado-2022}
+
+```{r}
+denunciado1 <- 
+  denuncias_denunciado |> 
+  group_by(org_ano_inicio_tratamento, denunciado) |> 
+  summarise(
+    qtd = n()
+  ) |> 
+  ungroup() |> 
+  mutate(
+    soma = sum(qtd,na.rm = TRUE),
+    porcentagem = round((qtd/soma)*100,digits = 2)
+  ) |>  
+  arrange(desc(porcentagem)) |> 
+  mutate(
+    denunciado = factor( denunciado, levels= denunciado, ordered = TRUE)
+  ) |> 
+  select(-soma)
+```
+
+Outra informação importante diz respeito ao alvo da denúncia. Nesse sentido, as próxima tabela mostra os cargos e instituições frequentemente denunciadas.
+
+```{r}
+#| label: tbl-denuncias-denunciados-2022
+#| tbl-cap: >
+#|   Lista de cargos dos principais denunciados no Sistema Prisional.
+    
+
+t1_denunciados_denuncias <- denunciado1
+names(t1_denunciados_denuncias) <- c("Ano","Denunciado","Quantidade","Qtd. relativa (%)")
+
+formattable::formattable(
+    t1_denunciados_denuncias, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Denunciado` = color_tile("lightblue","lightyellow"),
+    
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Qtd. relativa (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+      info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+      paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+      url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+Já a [figura @fig-graf-denunciados-2022] evidencia graficamente as informações da última tabela.
+
+```{r}
+#| label: fig-graf-denunciados-2022
+#| fig-cap: >  
+#|       Relação de cargos mais denunciados e seus quantificações. 
+
+p10 <- denunciado1 |> 
+ plot_ly(
+    x = ~ denunciado,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ denunciado,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+p10 <- p10 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(denunciado1$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+
+p10
+```
+
+## Reclamações {#sec-reclamacoes-2022}
+
+As reclamações surgem como um dos tipos mais frequentes de demandas recebidas pela Onasp. Nesse sentido, esta seção empenha-se em quantificar os dados de forma tabular e gráfica.
+
+Na [seção @sec-tipos-reclamacoes-2022] tem-se a lista de características das reclamações e na [seção @sec-reclamacoes-encaminhamento-2022] evidencia-se o rol de órgãos / instituições responsáveis pela verificação de autenticidade dos pedidos.
+
+### Tipos de reclamações {#sec-tipos-reclamacoes-2022}
+
+```{r}
+reclamacoes1 <- 
+  reclamacoes |> 
+  count(
+    org_ano_inicio_tratamento,
+    tipo_reclamacao,
+    name = "qtd"
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento
+  ) |> 
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = round((qtd/total)*100, digits = 2)
+  ) |> 
+  arrange(desc(qtd)) |>
+  mutate(
+    tipo_reclamacao = factor(tipo_reclamacao, levels = tipo_reclamacao, ordered = TRUE)
+  )
+
+```
+
+O ano de `r vetor_filtro` teve `r sum(reclamacoes1$qtd)` reclamações realizadas pelos próprios custodiados, amigos, advogados e/ou familiares. O próximo quadro tabula o rol de reclamações e a importância numérica de cada item.
+
+```{r}
+#| label: tbl-tipos-reclamacoes-2022
+#| tbl-cap: >
+#|   Reclamações tipificadas e seus valores absolutos e relativos.
+
+t1_reclamacoes <- reclamacoes1 |> select(org_ano_inicio_tratamento,tipo_reclamacao,qtd,porcentagem)
+names(t1_reclamacoes) <- c("Ano","Tipo","Quantidade","Valor relativo (%)")
+
+formattable::formattable(
+    t1_reclamacoes, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo` = color_tile("lightblue","lightyellow"),
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Valor relativo (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+   )
+  #pageLength = 5
+  )
+)
+```
+
+ 
+
+O gráfico na [figura @fig-graf-tipos-reclamacoes-2022] mostra os `r nrow(head(reclamacoes1,n=10))` tipos de reclamações mais recorrentes.
+
+```{r}
+#| label: fig-graf-tipos-reclamacoes-2022
+#| fig-cap: >  
+#|       Tipificação das reclamacoes apresentadas em seus valores absolutos e percentuais.
+
+
+p11 <- reclamacoes1 |> 
+  head(10) |> 
+  plot_ly(
+    x = ~ tipo_reclamacao,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ tipo_reclamacao,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+p11 <- p11 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(reclamacoes1$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+p11
+```
+
+### Reclamações - Encaminhamento {#sec-reclamacoes-encaminhamento-2022}
+
+```{r}
+#| label: tbl-encaminhamento-reclamacoes-2022
+#| tbl-cap: >
+#|   Órgãos de encaminhamento das reclamações de ouvidoria. 
+
+t1_encaminhamento_reclamacoes <- 
+  encaminhamento2 |> 
+  select(
+    -soma 
+  ) |> 
+  filter(tipo_demanda == "Reclamação") |> 
+  mutate(
+    tipo_demanda = as.factor(tipo_demanda),
+    instituicao_encaminhamento = factor(instituicao_encaminhamento, levels=instituicao_encaminhamento, ordered = TRUE)
+  )
+names(t1_encaminhamento_reclamacoes) <- c("Ano","Tipo","Instituição","Quantidade","Qtd. relativa (%)")
+
+formattable::formattable(
+    t1_encaminhamento_reclamacoes, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo` = color_tile("orange","lightgrey"),
+    `Instituição` = color_tile("lightblue","lightyellow"),
+    
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Qtd. relativa (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+      info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+      paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+      url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+```{r}
+#| label: fig-graf-encaminhamentos-reclamacoes-2022
+#| fig-cap: >  
+#|       Rol de instituições responsáveis pelos acompanhamentos e tratativas das manifestações.
+
+max_eixo <- encaminhamento2 |> filter(tipo_demanda == "Reclamações")
+p12 <- encaminhamento2 |> 
+   select(
+    -soma 
+  ) |> 
+  filter(tipo_demanda == "Reclamação") |> 
+  mutate(
+    instituicao_encaminhamento = factor(instituicao_encaminhamento,levels=instituicao_encaminhamento,ordered = TRUE)
+  ) |> 
+  plot_ly(
+    x = ~ instituicao_encaminhamento,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ instituicao_encaminhamento,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+
+p12 <- p12 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(max_eixo$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+
+p12
+```
+
+## Sugestões {#sec-sugestoes-2022}
+
+As sugestões podem ser realizadas para todos os órgãos da administração penitenciária em todas as esferas de poder. Dessa forma, a Ouvidoria Nacional dos Serviços Penais trata e encaminha esse tipo de manifestação conforme descrito nas próximas seções. A [seção @sec-tipos-sugestoes-2022] lista os principais assuntos sugeridos, enquanto a @sec-encaminhamento-sugestoes-2022 lista os órgãos / instituições responsáveis pela possível aplicação.
+
+```{r}
+sugestoes1 <- 
+  sugestoes |> 
+  count(
+    org_ano_inicio_tratamento,
+    tipo_sugestao,
+    name = "qtd"
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento
+  ) |> 
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = round((qtd/total)*100, digits = 2)
+  ) |> 
+  arrange(desc(qtd)) |>
+  mutate(
+    tipo_sugestao = factor(tipo_sugestao, levels = tipo_sugestao, ordered = TRUE)
+  )
+
+```
+
+### Tipos de Sugestões {#sec-tipos-sugestoes-2022}
+
+A metodologia de coleta de dados da Onasp inclui a divisão dos assuntos sugeridos em categorias bem definidas de acordo com a tabela abaixo.
+
+```{r}
+#| label: tbl-tipos-sugestoes-2022
+#| tbl-cap: >
+#|   Sugestões tipificadas e seus valores absolutos e relativos.
+
+t1_sugestoes <- sugestoes1 |> select(org_ano_inicio_tratamento,tipo_sugestao,qtd,porcentagem)
+names(t1_sugestoes) <- c("Ano","Tipo","Quantidade","Valor relativo (%)")
+
+formattable::formattable(
+    t1_sugestoes, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo` = color_tile("lightblue","lightyellow"),
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Valor relativo (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+   )
+  #pageLength = 5
+  )
+)
+```
+
+ 
+
+O gráfico na [figura @fig-graf-tipos-reclamacoes-2022] mostra os `r nrow(sugestoes1)` tipos de reclamações mais recorrentes.
+
+```{r}
+#| label: fig-graf-tipos-sugestoes-2022
+#| fig-cap: >  
+#|       Tipificação das sugestões apresentadas em seus valores absolutos e percentuais.
+
+
+p12 <- sugestoes1 |> 
+  head(10) |> 
+  plot_ly(
+    x = ~ tipo_sugestao,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ tipo_sugestao,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+p12 <- p12 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(sugestoes1$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+p12
+```
+
+### Sugestões- Encaminhamento {#sec-encaminhamento-sugestoes-2022}
+
+Em vários casos, a competência de implantação / realização das sugestões não é relativa à Secretaria Nacional de Políticas Penais - Senappen. Dessa forma, são encaminhadas a outros órgãos dentro ou fora da administração penitenciária. A tabela a seguir, lista as possibilidades de encaminhamento.
+
+```{r}
+#| label: tbl-encaminhamento-sugestoes-2022
+#| tbl-cap: >
+#|   Órgãos de encaminhamento das sugestões recebidas pela Onasp. 
+
+t1_encaminhamento_sugestoes <- 
+  encaminhamento2 |> 
+  select(
+    -soma 
+  ) |> 
+  filter(tipo_demanda == "Sugestão") |> 
+  mutate(
+    tipo_demanda = as.factor(tipo_demanda),
+    instituicao_encaminhamento = factor(instituicao_encaminhamento, levels=instituicao_encaminhamento, ordered = TRUE)
+  )
+names(t1_encaminhamento_sugestoes) <- c("Ano","Tipo","Instituição","Quantidade","Qtd. relativa (%)")
+
+formattable::formattable(
+    t1_encaminhamento_sugestoes, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo` = color_tile("orange","lightgrey"),
+    `Instituição` = color_tile("lightblue","lightyellow"),
+    
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Qtd. relativa (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+      info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+      paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+      url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+A [figura @fig-graf-encaminhamentos-sugestoes-2022] mostra, de forma gráfica, as informações da tabela anterior.
+
+```{r}
+#| label: fig-graf-encaminhamentos-sugestoes-2022
+#| fig-cap: >  
+#|       Rol de instituições responsáveis pela possível implantação da sugestão.
+
+max_eixo <- encaminhamento2 |> filter(tipo_demanda == "Sugestão")
+p13 <- encaminhamento2 |> 
+   select(
+    -soma 
+  ) |> 
+  filter(tipo_demanda == "Sugestão") |> 
+  mutate(
+    instituicao_encaminhamento = factor(instituicao_encaminhamento,levels=instituicao_encaminhamento,ordered = TRUE)
+  ) |> 
+  plot_ly(
+    x = ~ instituicao_encaminhamento,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ instituicao_encaminhamento,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+
+p13 <- p13 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(max_eixo$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+
+p13
+```
+
+## Elogios ou agradecimentos {#sec-elogios-2022}
+
+```{r}
+elogios1 <- 
+  elogios |> 
+  count(
+    org_ano_inicio_tratamento,
+    tipo_elogio,
+    name = "qtd"
+  ) |> 
+  group_by(
+    org_ano_inicio_tratamento
+  ) |> 
+  mutate(
+    total = sum(qtd, na.rm = TRUE),
+    porcentagem = round((qtd/total)*100, digits = 2)
+  ) |> 
+  arrange(desc(qtd)) |>
+  mutate(
+    tipo_elogio = factor(tipo_elogio, levels = tipo_elogio, ordered = TRUE)
+  )
+
+```
+
+Esta seção trata dos elogios acerca de projetos e procedimentos dentro do sistema, além de agradecimentos sobre procedimentos realizados por pessoas ou órgãos no sistema penitenciário nacional.
+
+A [seção @sec-tipos-elogios-2022] quantifica os assuntos elogiados / agradecidos, já a [seção @sec-elogios-encaminhamento-2022] lista os órgãos / instituições contempladas.
+
+### Tipos de elogios ou agradecimentos {#sec-tipos-elogios-2022}
+
+A metodologia de coleta de dados da Onasp inclui a divisão dos elogios e agradecimentos em categorias bem definidas de acordo com a tabela abaixo.
+
+```{r}
+#| label: tbl-tipos-elogios-2022
+#| tbl-cap: >
+#|   Elogios e agradecimentos tipificados e seus valores absolutos e relativos.
+
+t1_elogios <-elogios1 |> select(org_ano_inicio_tratamento,tipo_elogio,qtd,porcentagem)
+names(t1_elogios) <- c("Ano","Tipo","Quantidade","Valor relativo (%)")
+
+formattable::formattable(
+   t1_elogios, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo` = color_tile("lightblue","lightyellow"),
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Valor relativo (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+   )
+  #pageLength = 5
+  )
+)
+```
+
+ 
+
+O gráfico na [figura @fig-graf-tipos-elogios-2022] mostra os `r nrow(elogios1)` tipos de elogios / agradecimentos mais recorrentes.
+
+```{r}
+#| label: fig-graf-tipos-elogios-2022
+#| fig-cap: >  
+#|       Tipificação dos elogios e agradecimentos apresentados em seus valores absolutos e percentuais.
+
+
+p14 <- elogios1 |> 
+  head(10) |> 
+  plot_ly(
+    x = ~ tipo_elogio,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ tipo_elogio,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+p14 <- p14 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(elogios1$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+p14
+```
+
+### Elogios ou agradecimentos - Encaminhamento {#sec-elogios-encaminhamento-2022}
+
+Neste quesito, encontra-se a informação acerca dos órgãos responsáveis pelas ações/ projetos elogiados, além dos agradecimentos recebidos pelos mesmos.
+
+```{r}
+#| label: tbl-encaminhamento-elogio-2022
+#| tbl-cap: >
+#|   Órgãos de encaminhamento dos elogios / agradecimentos recebidas pela Onasp. 
+
+t1_encaminhamento_elogios <- 
+  encaminhamento2 |> 
+  select(
+    -soma 
+  ) |> 
+  filter(tipo_demanda == "Elogio e/ou agradecimento") |> 
+  mutate(
+    tipo_demanda = as.factor(tipo_demanda),
+    instituicao_encaminhamento = factor(instituicao_encaminhamento, levels=instituicao_encaminhamento, ordered = TRUE)
+  )
+names(t1_encaminhamento_elogios) <- c("Ano","Tipo","Instituição","Quantidade","Qtd. relativa (%)")
+
+formattable::formattable(
+    t1_encaminhamento_elogios, 
+    align = c("c","l","l","l"),
+    list(
+    `Ano` = color_tile("lightgrey","orange"),
+    `Tipo` = color_tile("orange","lightgrey"),
+    `Instituição` = color_tile("lightblue","lightyellow"),
+    
+    area(col = c(`Quantidade`)) ~ normalize_bar("#F6FF98", 0.2),
+    area(col = c(`Qtd. relativa (%)`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+      info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+      paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+      url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+    )
+  #pageLength = 5
+    )
+  )
+```
+
+ 
+
+A [figura @fig-graf-encaminhamentos-elogios-2022] mostra, de forma gráfica, as informações da tabela anterior.
+
+```{r}
+#| label: fig-graf-encaminhamentos-elogios-2022
+#| fig-cap: >  
+#|       Rol de instituições elogiadas.
+
+max_eixo <- encaminhamento2 |> filter(tipo_demanda == "Elogio e/ou agradecimento")
+p15 <- encaminhamento2 |> 
+   select(
+    -soma 
+  ) |> 
+  filter(tipo_demanda == "Elogio e/ou agradecimento") |> 
+  mutate(
+    instituicao_encaminhamento = factor(instituicao_encaminhamento,levels=instituicao_encaminhamento,ordered = TRUE)
+  ) |> 
+  plot_ly(
+    x = ~ instituicao_encaminhamento,
+    y = ~ `qtd`,
+    type = 'bar',
+    color = ~ instituicao_encaminhamento,
+    colors =  cores,
+    text = ~ str_c( `qtd`,"/ ",porcentagem,"%"),
+    textposition = "outside",
+    textfont = list(family = "Calibri",size = 14),
+    alpha = 0.9,
+    #marker = list(color = cores),
+    showlegend = FALSE
+  )
+
+
+p15 <- p15 |> layout(
+  #title = "Tempos médios / 2021",
+  #uniformtext=list(minsize=10, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = "",showline = FALSE, showticklabels = TRUE),
+  yaxis = list(title = "Quantidade / Porcentagem",range = c(0.0,max(max_eixo$qtd)*1.12))
+  #legend = list(orientation = "h")
+)
+
+p15
+```
+
+## Tempo de atendimento {#sec-tempos-2022}
+
+```{r}
+dados_gerais3 <- 
+  dados_gerais|> 
+  select(
+    org_mes_inicio_tratamento,
+    tempo_chegada_onsp,
+    tempo_tratamento_onsp,
+    tempo_total
+  ) 
+
+tempos1 <- dados_gerais3 |> 
+  summarise(
+    media_chegada = round(mean(tempo_chegada_onsp,na.rm = TRUE),digits = 2),
+    media_tratamento = round(mean(tempo_tratamento_onsp,na.rm = TRUE),digits = 2),
+    media_total = round(mean(tempo_total,na.rm = TRUE),digits = 2),
+    
+    mediana_chegada = round(median(tempo_chegada_onsp, na.rm = TRUE),digits = 2),
+    mediana_tratamento = round(median(tempo_tratamento_onsp, na.rm = TRUE),digits = 2),
+    mediana_total = round(median(tempo_total, na.rm = TRUE),digits = 2)
+  ) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "medida",
+    values_to = "tempos"
+  ) |> 
+  mutate(
+    medida_resumo = case_when(
+      str_detect(medida, "media_") ~ "Média",
+      TRUE ~ "Mediana"
+    ),
+
+    medida = case_when(
+      str_detect(medida, "tratamento") ~ "Tempo de tratamento",
+      str_detect(medida, "chegada") ~ "Tempo de chegada",
+      TRUE ~ "Tempo total"
+    )
+  ) |> 
+  relocate(medida_resumo, .before = medida) |> 
+  pivot_wider(
+    names_from = c("medida"),
+    values_from = tempos
+  )
+
+tempos2 <- 
+  dados_gerais |> 
+  filter(org_ano_inicio_tratamento %in% vetor_filtro) |> 
+  select(
+    org_ano_inicio_tratamento,
+    org_mes_inicio_tratamento,
+    tempo_chegada_onsp,
+    tempo_tratamento_onsp,
+    tempo_total
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento),
+    org_mes_inicio_tratamento = factor(org_mes_inicio_tratamento, levels = meses)
+  ) |> 
+  group_by(
+    org_mes_inicio_tratamento
+  ) |> 
+  summarise(
+    `Tempo médio de chegada`=round(mean(tempo_chegada_onsp, na.rm = TRUE),digits = 2),
+    `Tempo médio de tratamento`=round(mean(tempo_tratamento_onsp,na.rm= TRUE),digits = 2),
+    `Tempo médio total`=round(mean(tempo_total, na.rm = TRUE),digits = 2)
+  ) 
+
+tempos3 <- 
+  dados_gerais |> 
+  filter(org_ano_inicio_tratamento %in% vetor_filtro) |> 
+  select(
+    org_ano_inicio_tratamento,
+    org_mes_inicio_tratamento,
+    tempo_chegada_onsp,
+    tempo_tratamento_onsp,
+    tempo_total
+  ) |> 
+  mutate(
+    org_ano_inicio_tratamento = as.factor(org_ano_inicio_tratamento),
+    org_mes_inicio_tratamento = factor(org_mes_inicio_tratamento, levels = meses)
+  ) |> 
+  group_by(
+    org_mes_inicio_tratamento
+  ) |> 
+  summarise(
+    `Tempo mediano de chegada`=round(median(tempo_chegada_onsp, na.rm = TRUE),digits = 2),
+    `Tempo mediano de tratamento`=round(median(tempo_tratamento_onsp,na.rm= TRUE),digits = 2),
+    `Tempo mediano total`=round(median(tempo_total, na.rm = TRUE),digits = 2)
+  ) 
+```
+
+A descrição da metologia de contagem do tempo de atendimento consta na [seção @sec-tempos1].
+
+Dessa forma, surgem três índices para medição do tempo: **Tempo de chegada**, **Tempo de tratamento** e **Tempo total de atendimento**.
+
+-   **Tempo de chegada:** tempo gasto entre a efetivação da demanda pelo manifestante e a chegada à Onasp. Para o caso de demandas realizadas através de cartas físicas, a data do carimbo do selo dos correios é utilizada como referência;
+
+-   **Tempo de tratamento:** tempo entre a chegada da demanda e a conclusão do processo na Onasp;
+
+-   **Tempo total de atendimento:** O tempo necessário entre a efetivação da demanda pelo manifestante e a conclusão do processo na Ouvidoria Nacional dos Serviços Penais.
+
+    ::: {.callout-warning appearance="simple"}
+    ## Atenção!
+
+    O índices de atendimento são calculados a partir de amostras das datas de efetivação, recebimento e conclusão da demanda. Nesse sentido, o tempo total de atendimento não é a soma exata do tempo de tratamento e de chegada.
+    :::
+
+A [seção @sec-tempo-medio-2022] analisa os valores e evoluções do tempo médio de atendimento das demandas, enquanto a [seção @sec-tempo-medio-2022] repete as análises, porém utilizando a mediana como medida resumo dos dados.
+
+A tabela abaixo mostra as médias e medianas para cada índice em `r vetor_filtro`.
+
+```{r}
+#| label: tbl-tempos-media
+#| tbl-cap: >
+#|   Médias das refências temporais utilizada como índices 
+#|   pela Ouvidoria Nacional dos Serviços Penais.
+
+names(tempos1) <- c("Medida Resumo", "Tempo de chegada", "Tempo de tratamento", "Tempo total")
+
+formattable::formattable(
+    tempos1, 
+    align = c("c","l","l","l"),
+    list(
+    `Medida Resumo` = color_tile("lightblue","lightyellow"),
+    area(col = c(`Tempo de chegada`)) ~ normalize_bar("lightgreen", 0.2),
+    area(col = c(`Tempo de tratamento`)) ~ normalize_bar("lightyellow", 0.2),
+    area(col = c(`Tempo total`)) ~ normalize_bar("lightblue", 0.2)
+  )) |> 
+  as.datatable(
+    escape = FALSE,
+    #options = list(scrollX = TRUE),
+    rownames = FALSE,
+    filter = "top",
+    options = list(
+    pageLength = 5, 
+    autoWidth = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$('body').css({'font-family': 'Calibri'});",
+    "}"
+    ),
+    language = list(
+    info = 'Mostrando de _START_ para _END_ em um total de _TOTAL_ registros',
+    paginate = list(previous = 'Anterior', `next` = 'Seguinte'),
+    url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+   )
+  #pageLength = 5
+  )
+)
+```
+
+### Médias dos tempos de atendimento {#sec-tempo-medio-2022}
+
+Agora, a [figura @fig-evolucao-tempo-media-2022] mostra a evolução das médias mensais dos tempos de atendimento.
+
+```{r}
+#| label: fig-evolucao-tempo-media-2022
+#| fig-cap: >
+#|     Evolução anual dos tempos médios de chegada, tratamento e total.
+
+p16 <- tempos2 |> 
+  plot_ly(
+    x = ~ org_mes_inicio_tratamento,
+    y = ~ `Tempo médio de chegada`,
+    name = "Tempo médio de chegada",
+    type = 'scatter',
+    mode = "lines+marker",
+    text = ~ `Tempo médio de chegada`,
+    textposition = "auto",
+    alpha = 0.7,
+    line = list(
+      color = "#294661", 
+      width = 1.5
+      #dash = 'dash'
+    ),
+    marker = list(
+      color = "#294661",
+      line = list(color = "#294661", width=1.5)
+    )
+  )
+
+p16 <- p16 |> 
+  add_trace(
+    y = ~`Tempo médio de tratamento`,
+    name = "Tempo médio de tratamento",
+    type = 'scatter',
+    mode = "lines+marker",
+    text = ~`Tempo médio de tratamento`,
+    textposition = "auto",
+    alpha = 0.7,
+    line = list(
+      color = "#7F312F", 
+      width = 1.5, 
+      dash = 'dot'
+    ),
+    marker = list(
+      color = "#7F312F",
+      line = list(color = "#7F312F",width=1.5)
+    )
+  )
+
+p16 <- p16 |> 
+  add_trace(
+    y = ~  `Tempo médio total`,
+    name = "Tempo médio total",
+    type = 'scatter',
+    mode = "lines+marker",
+    text = ~ `Tempo médio total`,
+    textposition = "auto",
+    alpha = 0.7,
+    line = list(
+      color = "#808080", 
+      width = 1.5, 
+      dash = 'dash'
+    ),
+    marker = list(
+      color = "#808080",
+      line = list(color = "#808080",width=1.5,dash="dash")
+      )
+  )
+
+p16 <- p16 |> layout(
+  #title = "Tempos médios / 2021",
+  uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Tempo (dias)"),
+  legend = list(orientation = "h")
+)
+
+p16
+
+```
+
+### Medianas dos tempos de atendimento {#sec-tempo-mediano-2022}
+
+O gráfico na [figura @fig-evolucao-tempo-mediana-2022] repete a análise anterior, porém utilizando a mediana como índice de medição.
+
+```{r}
+#| label: fig-evolucao-tempo-mediana-2022
+#| fig-cap: >
+#|     Evolução anual das medianas dos tempos de chegada, tratamento e total.
+
+p17 <- tempos3 |> 
+  plot_ly(
+    x = ~ org_mes_inicio_tratamento,
+    y = ~ `Tempo mediano de chegada`,
+    name = "Tempo mediano de chegada",
+    type = 'scatter',
+    mode = "lines+marker",
+    text = ~ `Tempo mediano de chegada`,
+    textposition = "auto",
+    alpha = 0.7,
+    line = list(
+      color = "#294661", 
+      width = 1.5
+      #dash = 'dash'
+    ),
+    marker = list(
+      color = "#294661",
+      line = list(color = "#294661", width=1.5)
+    )
+  )
+
+p17 <- p17 |> 
+  add_trace(
+    y = ~`Tempo mediano de tratamento`,
+    name = "Tempo mediano de tratamento",
+    type = 'scatter',
+    mode = "lines+marker",
+    text = ~`Tempo mediano de tratamento`,
+    textposition = "auto",
+    alpha = 0.7,
+    line = list(
+      color = "#7F312F", 
+      width = 1.5, 
+      dash = 'dot'
+    ),
+    marker = list(
+      color = "#7F312F",
+      line = list(color = "#7F312F",width=1.5)
+    )
+  )
+
+p17 <- p17 |> 
+  add_trace(
+    y = ~  `Tempo mediano total`,
+    name = "Tempo mediano total",
+    type = 'scatter',
+    mode = "lines+marker",
+    text = ~ `Tempo mediano total`,
+    textposition = "auto",
+    alpha = 0.7,
+    line = list(
+      color = "#808080", 
+      width = 1.5, 
+      dash = 'dash'
+    ),
+    marker = list(
+      color = "#808080",
+      line = list(color = "#808080",width=1.5,dash="dash")
+      )
+  )
+
+p17 <- p17 |> layout(
+  #title = "Tempos médios / 2021",
+  uniformtext=list(minsize=8, mode='hide'),
+  font = list(family = "Calibri", color = "#294661", size = 14),
+  xaxis = list(title = ""),
+  yaxis = list(title = "Tempo (dias)"),
+  legend = list(orientation = "h")
+)
+
+p17
+
+```
+
+## Referências {.unnumbered}
