@@ -1,4 +1,54 @@
-# Projeto {.unnumbered}
+# Objetivo Geral {.unnumbered}
 
-A taxa de ocupação é o índice responsável por resumir a organização espacial dentro
-de unidades penais.  
+Desenvolver uma metodologia para cálculo da taxa de ocupação e definição do perfil das unidades superlotadas.
+
+# Objetivos específicos {.unnumbered}
+- Calcular a taxa de ocupação em âmbitos nacional, estadual e distrital;
+- Mensurar o impacto da superlotação na oferta de assistências à saúde, material e ao direito ao trabalho;
+- Evidenciar as principais características das prisões superlotadas (caraterísticas físicas, geográficas e organizacionais).
+
+Obs: Por **organizacional** entenda: Tipo de estabelecimento, quantidade de internos e público alvo.
+
+# Introdução e Justicativa {.unnumbered}
+
+A problemática social relacionada ao sistema penitenciário merece atenção especial devido às suas graves consequências sociais dentro e fora das prisões, tais como, relação de violências internas às unidades penitenciárias e descumprimento de legislações internacionais de direitos humanos. 
+Autores concordam que a superlotação penitenciária é um dos maiores e mais dificéis problemas a serem superados dentro do âmbito da administração pública [@rangel2016].
+
+Matematicamente, a taxa de ocupação é conceituada pela relação entre o total de pessoas encarceradas e a capacidade física do estabelecimento penitenciário, dessa forma, define-se um unidade superlotada quando essa taxa excede o valor unitário.
+
+# Perspectiva Mundial {.unnumbered}
+
+Gerenciar o espaço físico dentro de unidades prisionais é um dos maiores desafios das instituições responsáveis pela execução penal ao redor do mundo. De acordo *Institute for Crime & Justice Policy Research*, o mundo possuía mais de 11 milhões de pessoas privadas de liberdade em 2021, sendo que um terço delas estão presas sem condenação definitiva [@site-wpb]. Esse número está crescendo e, em contrapartida, os investimentos de recursos nos sistemas prisionais não crescem à mesma taxa. Essa realidade é uma crise sem precedentes que resulta em condições perigosas dentro e fora das unidades prisionais.
+
+As causas da sobre taxa de pessoas encarceradas são diversas, entre elas: reincidência criminal [@site-study]; prisões preventivas desnecessárias; excesso de políticas de encarceramento [@overuse-wpb]; altas taxas criminais; falta de recursos e de planejamento para ampliação do sistema prisional [@site-wpb].
+
+Como consequência, pesquisadores relatam condições insalubres diretamente relacionados às saúdes física e mental de internos e colaboradores dentro das unidades [@penalreform2021], crise institucionais, financeiras, legais e morais para governantes [@krajik1982] 
+
+Com relação à reincidência, há diversidade de estudos realizados a partir da década de 1980, especialmente na europa e Estados Unidos [@capdevila2009]. Porém, a comparação entre os mesmos é dificultada pelas diferentes metodologias e conceitos utilizados . 
+
+# Perspectiva Nacional
+
+O Brasil ocupa a terceira posição na lista de países com maior população prisional em valores absolutos (XXXXXX). Porém, um *ranking* mais realista deve considerar valores relativos e outras variáveis importantes que afetam o aprisionamento, como por exemplo, condições sociais, econômicas, geográficas. Nesse sentido, com o intuito de acurar a comparação em relação ao tamanho da população prisional, a tabela (XXXX) mostra os países do G20[^index-1] e suas respectivas taxas de aprisionamento [^index-2].
+
+[^index-1]: Organização internacional que reúne as maiores economias mundiais que visa cooperação econômica internacional [@siteg20].
+
+[^index-2]: A taxa de aprisioamento é dada pelo número de pessoas encarceradas a cada 100.000 mil pessoas da região, estado ou país.
+
+A taxa de ocupação é a principal métrica responsável por resumir a organização da dinâmica espacial dentro de unidades penais.
+
+
+# Metodologia {.unnumbered}
+
+# Tratamento de dados {.unnumbered}
+
+# Taxa de ocupação {.unnumbered}
+
+# Análise de dados {.unnumbered}
+
+# Discussão e resultados {.unnumbered}
+
+#Considerações finais {.unnumbered}
+
+ 
+
+# Referências {.unnumbered}

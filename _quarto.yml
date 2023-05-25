@@ -16,9 +16,9 @@ book:
       href: https://www.gov.br/depen/pt-br
     - text: "Ministério da Justiça e Segurança Pública - MJSP"
       href: https://www.gov.br/mj/pt-br
-  cover-image: images/senappen_brasao.png
-  #logo: images/brasao_ouvidoria.jpeg
-  image: images/senappen_brasao.png
+  cover-image: img/senappen_brasao.png
+  #logo: img/brasao_ouvidoria.jpeg
+  image: img/senappen_brasao.png
   site-url: https://www.gov.br/depen/pt-br
   sharing: [twitter, facebook, linkedin]
   search:
@@ -34,7 +34,7 @@ book:
     subtitle: "Artigo Científico"
     background: "white"
     items:
-    logo: images/senappen_brasao.png
+    logo: img/senappen_brasao.png
     style: docked
     alignment: left
     tools:
@@ -43,8 +43,8 @@ book:
 
   chapters:
     - index.qmd
-    - estatisticas_anuais.qmd
-    - estatisticas_2022.qmd
+    #- estatisticas_anuais.qmd
+    #- estatisticas_2022.qmd
 
 bibliography: referencias.bib
 

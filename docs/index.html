@@ -21,6 +21,26 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1.6em;
   vertical-align: middle;
 }
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 1em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
 </style>
 
 
@@ -31,7 +51,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./estatisticas_anuais.html" rel="next">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -84,7 +103,7 @@ ul.task-list li input[type="checkbox"] {
   <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="./index.html" class="sidebar-logo-link">
-      <img src="./images/senappen_brasao.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none">
+      <img src="./img/senappen_brasao.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none">
       </a>
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Diretoria de Politicas Penitenciárias</a> 
@@ -129,17 +148,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">Apresentação</a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./estatisticas_anuais.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Parâmetros no Período de Referência</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./estatisticas_2022.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Parâmetros 2022</span></a>
+  <a href="./index.html" class="sidebar-item-text sidebar-link active">Objetivo Geral</a>
   </div>
 </li>
     </ul>
@@ -151,7 +160,17 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Índice</h2>
    
   <ul>
-  <li><a href="#apresentação" id="toc-apresentação" class="nav-link active" data-scroll-target="#apresentação">Apresentação</a></li>
+  <li><a href="#objetivo-geral" id="toc-objetivo-geral" class="nav-link active" data-scroll-target="#objetivo-geral">Objetivo Geral</a></li>
+  <li><a href="#objetivos-específicos" id="toc-objetivos-específicos" class="nav-link" data-scroll-target="#objetivos-específicos">Objetivos específicos</a></li>
+  <li><a href="#introdução-e-justicativa" id="toc-introdução-e-justicativa" class="nav-link" data-scroll-target="#introdução-e-justicativa">Introdução e Justicativa</a></li>
+  <li><a href="#perspectiva-mundial" id="toc-perspectiva-mundial" class="nav-link" data-scroll-target="#perspectiva-mundial">Perspectiva Mundial</a></li>
+  <li><a href="#perspectiva-nacional" id="toc-perspectiva-nacional" class="nav-link" data-scroll-target="#perspectiva-nacional">Perspectiva Nacional</a></li>
+  <li><a href="#metodologia" id="toc-metodologia" class="nav-link" data-scroll-target="#metodologia">Metodologia</a></li>
+  <li><a href="#tratamento-de-dados" id="toc-tratamento-de-dados" class="nav-link" data-scroll-target="#tratamento-de-dados">Tratamento de dados</a></li>
+  <li><a href="#taxa-de-ocupação" id="toc-taxa-de-ocupação" class="nav-link" data-scroll-target="#taxa-de-ocupação">Taxa de ocupação</a></li>
+  <li><a href="#análise-de-dados" id="toc-análise-de-dados" class="nav-link" data-scroll-target="#análise-de-dados">Análise de dados</a></li>
+  <li><a href="#discussão-e-resultados" id="toc-discussão-e-resultados" class="nav-link" data-scroll-target="#discussão-e-resultados">Discussão e resultados</a></li>
+  <li><a href="#referências" id="toc-referências" class="nav-link" data-scroll-target="#referências">Referências</a></li>
   </ul>
 </nav>
     </div>
@@ -177,7 +196,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Data de Publicação</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">23 de maio de 2023</p>
+      <p class="date">25 de maio de 2023</p>
     </div>
   </div>
   
@@ -188,42 +207,91 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="apresentação" class="level1 unnumbered">
-<p><img src="images/senappen_brasao.png" title="Superlotação Carcerária" class="quarto-cover-image img-fluid"></p><h1 class="unnumbered">Apresentação</h1>
-<p>A Ouvidoria Nacional dos Serviços Penais - Onasp - é um órgão vinculado à Secretaria Nacional de Políticas Penais do Ministério da Justiça e Segurança Pública - Senappen/MJSP - que tem como objetivos primordiais a defesa dos direitos das pessoas privadas de liberdade e seus familiares, o acolhimento e processamento de manifestações e denúncias de servidores, o fortalecimento do controle e participação social nos serviços penais e, ainda, o monitoramento dos estabelecimentos penais do país, a partir de inspeções prisionais.</p>
-<p>Em consonância com as melhores práticas de transparência no serviço público, o regimento interno do Secretaria Nacional de Políticas Penais (Senappen) - portaria MJ nº 199, de 9 de novembro de 2018 - traz como atribuição da Onasp, em seu anexo I artigo nº 4 item V, entre outras:</p>
-<div class="callout-note callout callout-style-simple">
-<div class="callout-body d-flex">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-body-container">
-<p><em>V - publicar relatório anual de atividades, com recomendações voltadas à plena garantia dos direitos das pessoas privadas de liberdade e ao aprimoramento da gestão penitenciária no âmbito dos Serviços Penais;</em></p>
-</div>
-</div>
-</div>
-<p>Nesse sentido, as atribuições regimentais da Ouvidoria Nacional dos Serviços Penais extrapolam as ações de controle e fiscalização, tornando-se primordial para o apoio na gestão penitenciária e órgãos da sociedade civil organizada. Dessa maneira, as atividades relatadas nesse documento objetivam o aprimoramento do controle social na execução penal, a melhoria das condições estruturais dos conselhos de comunidade, fomento a criação de vagas no sistema penitenciário, melhoria das condições de trabalho das ouvidorias estaduais, além de, aumentar a fiscalização e controle de solicitações, denúncias e reclamações advindas de pessoas custodiadas, seus familiares, servidores penitenciários e órgãos da execução penal.</p>
-<p>Para subsidiar as ações da Onasp, no ano de 2020, foi implantado um sistema de gerenciamento para acompanhamento / tratamento das manifestações recebidas. Entre outros produtos, são gerados mensalmente, dados estatísticos quantitativos e qualitativos acerca do tratamento das demandas da Onasp.</p>
-<p>No período entre 2020 e 2021, o relatório de gestão da Ouvidoria Nacional dos Serviços Penais foi elaborado e publicizado em meios digitais em <em>Portable Document Format</em> (pdf). Nesse sentido, a grande novidade deste novo relatório está em seu novo formato (<em>e-book</em>). A ideia partiu da necessidade de construir um fluxo histórico das ações e projetos da ouvidoria, além de facilitar e agilizar a publicidade e atualização das informações. Entre outras funcionalidades, este novo relatório permite:</p>
+<section id="objetivo-geral" class="level1 unnumbered">
+<p><img src="img/senappen_brasao.png" title="Superlotação Carcerária" class="quarto-cover-image img-fluid"></p><h1 class="unnumbered">Objetivo Geral</h1>
+<p>Desenvolver uma metodologia para cálculo da taxa de ocupação e definição do perfil das unidades superlotadas.</p>
+</section>
+<section id="objetivos-específicos" class="level1 unnumbered">
+<h1 class="unnumbered">Objetivos específicos</h1>
 <ul>
-<li><p>consultar informações de relatórios referentes a períodos anteriores;</p></li>
-<li><p>navegar entre as páginas utilizando os links de acesso estrategicamente localizados;</p></li>
-<li><p>filtrar assuntos dentro do relatório utilizando a barra de pesquisa geral;</p></li>
-<li><p>ampliar, diminuir e/ou imprimir os gráficos e suas análises; e</p></li>
-<li><p>selecionar observações e itens em tabelas e gráficos;</p></li>
+<li>Calcular a taxa de ocupação em âmbitos nacional, estadual e distrital;</li>
+<li>Mensurar o impacto da superlotação na oferta de assistências à saúde, material e ao direito ao trabalho;</li>
+<li>Evidenciar as principais características das prisões superlotadas (caraterísticas físicas, geográficas e organizacionais).</li>
 </ul>
-<p>Outro avanço tecnológico significativo dos trabalhos na Ouvidoria Nacional dos Serviços Penais diz respeito à publicação do <strong>Painel de Tratamento das Demandas de Ouvidoria</strong>. Essa é uma ferramenta de <em>Business Inteligence</em> construída pela equipe da Onasp e atualizada constantemente com informações detalhadas acerca das manifestações recebidas. O objetivo principal é subsidiar as ações da ouvidoria e, em segundo plano, complementar as análises estatísticas contida neste relatório e ampliar a publicidade e transparência dos processos. <a href="https://app.powerbi.com/links/Pu1YtXZQOP?ctid=eb090420-444c-43f7-91f2-4b8da6bfe8e1&amp;pbi_source=linkShare&amp;bookmarkGuid=00a4c543-938f-4619-bc10-0cf7500e92ed">Clique aqui para visualizar o painel.</a></p>
-<p>Entre outras informações, o painel contém:</p>
-<ul>
-<li><p>íntegra dos relatos de denúncias e reclamações;</p></li>
-<li><p>informações regionalizadas de cada tipo de manifestação;</p></li>
-<li><p>consulta de processos e manifestações em cada estabelecimento prisional;</p></li>
-<li><p>dados sobre o gênero do demandante; e</p></li>
-<li><p>índices para controle do tempo de atendimento.</p></li>
-</ul>
-<p>As demandas externas e internas são recebidas através de cartas, e-mails, contatos telefônicos, via Plataforma Integrada de Ouvidoria e Acesso à Informação (Fala.BR) e atendimento presencial assegurado o completo sigilo de informações dos requerentes.</p>
+<p>Obs: Por <strong>organizacional</strong> entenda: Tipo de estabelecimento, quantidade de internos e público alvo.</p>
+</section>
+<section id="introdução-e-justicativa" class="level1 unnumbered">
+<h1 class="unnumbered">Introdução e Justicativa</h1>
+<p>A problemática social relacionada ao sistema penitenciário merece atenção especial devido às suas graves consequências sociais dentro e fora das prisões, tais como, relação de violências internas às unidades penitenciárias e descumprimento de legislações internacionais de direitos humanos. Autores concordam que a superlotação penitenciária é um dos maiores e mais dificéis problemas a serem superados dentro do âmbito da administração pública <span class="citation" data-cites="rangel2016">(<a href="#ref-rangel2016" role="doc-biblioref">MEDEIROS; GASTANHO, 2016</a>)</span>.</p>
+<p>Matematicamente, a taxa de ocupação é conceituada pela relação entre o total de pessoas encarceradas e a capacidade física do estabelecimento penitenciário, dessa forma, define-se um unidade superlotada quando essa taxa excede o valor unitário.</p>
+</section>
+<section id="perspectiva-mundial" class="level1 unnumbered">
+<h1 class="unnumbered">Perspectiva Mundial</h1>
+<p>Gerenciar o espaço físico dentro de unidades prisionais é um dos maiores desafios das instituições responsáveis pela execução penal ao redor do mundo. De acordo <em>Institute for Crime &amp; Justice Policy Research</em>, o mundo possuía mais de 11 milhões de pessoas privadas de liberdade em 2021, sendo que um terço delas estão presas sem condenação definitiva <span class="citation" data-cites="site-wpb">(<a href="#ref-site-wpb" role="doc-biblioref">ENGLAND, 2021</a>)</span>. Esse número está crescendo e, em contrapartida, os investimentos de recursos nos sistemas prisionais não crescem à mesma taxa. Essa realidade é uma crise sem precedentes que resulta em condições perigosas dentro e fora das unidades prisionais.</p>
+<p>As causas da sobre taxa de pessoas encarceradas são diversas, entre elas: reincidência criminal <span class="citation" data-cites="site-study">(<a href="#ref-site-study" role="doc-biblioref">STUDY, 2021</a>)</span>; prisões preventivas desnecessárias; excesso de políticas de encarceramento <span class="citation" data-cites="overuse-wpb">(<a href="#ref-overuse-wpb" role="doc-biblioref">ENGLAND, 2017</a>)</span>; altas taxas criminais; falta de recursos e de planejamento para ampliação do sistema prisional <span class="citation" data-cites="site-wpb">(<a href="#ref-site-wpb" role="doc-biblioref">ENGLAND, 2021</a>)</span>.</p>
+<p>Como consequência, pesquisadores relatam condições insalubres diretamente relacionados às saúdes física e mental de internos e colaboradores dentro das unidades <span class="citation" data-cites="penalreform2021">(<a href="#ref-penalreform2021" role="doc-biblioref">PENAL, 2021</a>)</span>, crise institucionais, financeiras, legais e morais para governantes <span class="citation" data-cites="krajik1982">(<a href="#ref-krajik1982" role="doc-biblioref">KRAJIK; GETTINGER, 1982</a>)</span></p>
+<p>Com relação à reincidência, há diversidade de estudos realizados a partir da década de 1980, especialmente na europa e Estados Unidos <span class="citation" data-cites="capdevila2009">(<a href="#ref-capdevila2009" role="doc-biblioref">CAPDEVILA; PUIG, 2009</a>)</span>. Porém, a comparação entre os mesmos é dificultada pelas diferentes metodologias e conceitos utilizados .</p>
+</section>
+<section id="perspectiva-nacional" class="level1">
+<h1>Perspectiva Nacional</h1>
+<p>O Brasil ocupa a terceira posição na lista de países com maior população prisional em valores absolutos (XXXXXX). Porém, um <em>ranking</em> mais realista deve considerar valores relativos e outras variáveis importantes que afetam o aprisionamento, como por exemplo, condições sociais, econômicas, geográficas. Nesse sentido, com o intuito de acurar a comparação em relação ao tamanho da população prisional, a tabela (XXXX) mostra os países do G20<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> e suas respectivas taxas de aprisionamento <a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
+<p>A taxa de ocupação é a principal métrica responsável por resumir a organização da dinâmica espacial dentro de unidades penais.</p>
+</section>
+<section id="metodologia" class="level1 unnumbered">
+<h1 class="unnumbered">Metodologia</h1>
+</section>
+<section id="tratamento-de-dados" class="level1 unnumbered">
+<h1 class="unnumbered">Tratamento de dados</h1>
+</section>
+<section id="taxa-de-ocupação" class="level1 unnumbered">
+<h1 class="unnumbered">Taxa de ocupação</h1>
+</section>
+<section id="análise-de-dados" class="level1 unnumbered">
+<h1 class="unnumbered">Análise de dados</h1>
+</section>
+<section id="discussão-e-resultados" class="level1 unnumbered">
+<h1 class="unnumbered">Discussão e resultados</h1>
+<p>#Considerações finais {.unnumbered}</p>
+</section>
+<section id="referências" class="level1 unnumbered">
+<h1 class="unnumbered">Referências</h1>
 
 
+<div id="refs" class="references csl-bib-body" data-entry-spacing="1" role="doc-bibliography">
+<div id="ref-capdevila2009" class="csl-entry" role="doc-biblioentry">
+CAPDEVILA, M.; PUIG, M. F. <strong>Tasa de reincidencia penitenciária 2008</strong>. ES: Àmbit Social i Criminològic - Centre D’Estudis Jurídics i Formació Especializada, 2009. Disponível em: &lt;<a href="https://creativecommons.org/licenses/by-nc- nd/2.5/es/legalcode.ca,
+consultado em 25/5/2023">creativecommons.org/licenses/by-nc- nd/2.5/es/legalcode.ca, consultado em 25/5/2023</a>&gt;.
+</div>
+<div id="ref-overuse-wpb" class="csl-entry" role="doc-biblioentry">
+ENGLAND, I. FOR C. &amp;. J. P. R. <strong>Ten-country prisons project</strong>. EN: Institute for Crime &amp; Justice Policy Research, 2017. Disponível em: &lt;<a href="https://www.prisonstudies.org/ten-country-prisons-project">https://www.prisonstudies.org/ten-country-prisons-project</a>&gt;.
+</div>
+<div id="ref-site-wpb" class="csl-entry" role="doc-biblioentry">
+ENGLAND, I. FOR C. &amp;. J. P. R. <strong>Ten-country prisons project</strong>. EN: Institute for Crime &amp; Justice Policy Research, 2021. Disponível em: &lt;<a href="https://www.prisonstudies.org/ten-country-prisons-project">https://www.prisonstudies.org/ten-country-prisons-project</a>&gt;.
+</div>
+<div id="ref-krajik1982" class="csl-entry" role="doc-biblioentry">
+KRAJIK, K.; GETTINGER, S. Overcrowded Time - Why Prisons Are So Crowded and What Can Be Done. <strong>National Criminal Justice Reference Service</strong>, p. 50, 1982.
+</div>
+<div id="ref-rangel2016" class="csl-entry" role="doc-biblioentry">
+MEDEIROS, RANGEL. F.; GASTANHO, BICALHO. P. Superlotação das prisões brasileiras: Operador político da racionalidade contemporânea. <strong>Estudos de Psicologia (Natal)</strong>, v. 21, n. 4, p. SN, 2016.
+</div>
+<div id="ref-penalreform2021" class="csl-entry" role="doc-biblioentry">
+PENAL, R. I. <strong>Global Prison Trends</strong>. EN: Penal Reform Internacional, 2021. Disponível em: &lt;<a href="https://www.penalreform.org/issues/prison-conditions/key-facts/overcrowding/,
+consultado em 25/5/2023">https://www.penalreform.org/issues/prison-conditions/key-facts/overcrowding/, consultado em 25/5/2023</a>&gt;.
+</div>
+<div id="ref-site-study" class="csl-entry" role="doc-biblioentry">
+STUDY, O.-L. E. P. <strong>Causes of overpopulation in Prisons</strong>. US: study.com, 2021. Disponível em: &lt;<a href="https://study.com/learn/lesson/prison-overcrowding.html">https://study.com/learn/lesson/prison-overcrowding.html</a>&gt;.
+</div>
+<div id="ref-siteg20" class="csl-entry" role="doc-biblioentry">
+WORLD, T. G. OF T. (G20). <strong>G20 Índia 2023 - Background Brief</strong>. EN: The Group of Twenty (G20) - forum for international economic cooperation, 2023. Disponível em: &lt;<a href="https://www.g20.org/en/about-g20/#overview">https://www.g20.org/en/about-g20/#overview</a>&gt;.
+</div>
+</div>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn1"><p>Organização internacional que reúne as maiores economias mundiais que visa cooperação econômica internacional <span class="citation" data-cites="siteg20">(<a href="#ref-siteg20" role="doc-biblioref">WORLD, 2023</a>)</span>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>A taxa de aprisioamento é dada pelo número de pessoas encarceradas a cada 100.000 mil pessoas da região, estado ou país.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
 </section>
 
 </main> <!-- /main -->
@@ -360,15 +428,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
-<nav class="page-navigation column-body">
-  <div class="nav-page nav-page-previous">
-  </div>
-  <div class="nav-page nav-page-next">
-      <a href="./estatisticas_anuais.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Parâmetros no Período de Referência</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
-  </div>
-</nav>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
