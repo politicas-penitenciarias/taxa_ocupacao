@@ -3,7 +3,7 @@
 Desenvolver uma metodologia para cálculo da taxa de ocupação e definição do perfil das unidades superlotadas.
 
 # Objetivos específicos {.unnumbered}
-- Calcular a taxa de ocupação em âmbitos nacional, estadual e distrital;
+- Medir e mapear a superpopulação prisional em âmbitos nacional, estadual e distrital;
 - Mensurar o impacto da superlotação na oferta de assistências à saúde, material e ao direito ao trabalho;
 - Evidenciar as principais características das prisões superlotadas (caraterísticas físicas, geográficas e organizacionais).
 
@@ -17,6 +17,12 @@ Autores concordam que a superlotação penitenciária é um dos maiores e mais d
 Matematicamente, a taxa de ocupação é conceituada pela relação entre o total de pessoas encarceradas e a capacidade física do estabelecimento penitenciário, dessa forma, define-se um unidade superlotada quando essa taxa excede o valor unitário.
 
 # Perspectiva Mundial {.unnumbered}
+
+## Conceituar superpopulação prisional (levar em consideração as dificuldades de cálculo e metodologias);
+## Falar sobre superpopulação prisional ao redor do mundo listando os países, citando pesquisas e documentos internacionais;
+## Escrever sobre as causas e efeitos da superpopulação nesses países de acordo com as pesquisas;
+## Falar sobre as diferenças das metodologias desses estudos, caso haja;
+## Deixar claro que a superpopulação é estudada como causa, porém há pouco estudos numéricos estatístico a respeito de seus impactos;
 
 Gerenciar o espaço físico dentro de unidades prisionais é um dos maiores desafios das instituições responsáveis pela execução penal ao redor do mundo. De acordo *Institute for Crime & Justice Policy Research*, o mundo possuía mais de 11 milhões de pessoas privadas de liberdade em 2021, sendo que um terço delas estão presas sem condenação definitiva [@site-wpb]. Esse número está crescendo e, em contrapartida, os investimentos de recursos nos sistemas prisionais não crescem à mesma taxa. Essa realidade é uma crise sem precedentes que resulta em condições perigosas dentro e fora das unidades prisionais.
 

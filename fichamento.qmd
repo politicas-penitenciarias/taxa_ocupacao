@@ -1,0 +1,63 @@
+---
+title: "Fichamento"
+---
+
+# Conceito de superpopulação prisional e taxa de ocupação
+
+> ---------------------------------------
+
+## Revista - ESTUDOS DE PSICOLOGIA (NATAL. ONLINE) A1
+### Artigo - Superlotação das prisões brasileiras: Operador político da racionalidade contemporânea
+### Link - https://www.scielo.br/j/epsic/a/C9yL7bQrNyHpq7pTVScCGmH/?lang=pt
+#### Descrição
+
+*"A partir do momento em que a quantidade de presos informada ultrapassa a capacidade do estabelecimento, configura-se situação de superlotação, sendo, portanto, uma constatação, digamos, objetiva, ou pelo menos mais objetiva que as demais, pois requerem maiores interpretações... No entanto, certas situações apontadas pelos relatórios colocam em questão essa suposta objetividade. É o caso, por exemplo, do Instituto Penal Antônio Trindade, no estado do Amazonas. Embora não sofra de superlotação se consideradas a capacidade e lotação informadas pela unidade, foi constatado que ele tem celas menores que o previsto em lei... Condição semelhante se dá na Carceragem de Duque de Caxias, no estado do Rio de Janeiro, onde foi verificado pelos conselheiros que o espaço nas celas é pequeno para a quantidade de detentos, apesar da lotação não ultrapassar 70%."*
+
+#### Resumo
+Os autores deixam clara a relação entre a quantidade de vagas e pessoas sendo objetivos quanto à forma de cálculo da taxa de ocupação,
+porém relata situação onde a metodologia para definição da capacidade do estabelecimento é contraditória à lei de execução penal.
+Segundo o artigo 88 da LEP, o condenado em **regime fechado** tem direito a **cela individual** salubre com, no minímo, 6m² e equipada com dormitório, aparelho sanitário e lavatório. 
+Para apenados nos regimes semiaberto e aberto, o alojamento **poderá ser coletivo**, porém mantendo as demais características. A mesma lei não prevê regras para os presos provisórios detidos em cadeias públicas e inimputáveis / semi-inimputáveis cumprindo medida de segurança em hospitais de custódia e tratamento psiquiátrico.
+De acordo com a Secretaria Nacional de Políticas Penais, a definição da quantidade de vagas de cada estabelecimento é responsabilidade das unidades federativas, nesse sentido, há uma despadronização na coleta de dados desse quesito. 
+
+> ------------------------------------ 
+
+## Site - Penal Reform International
+### Artigo site - Overcrowding
+### Link - https://www.penalreform.org/issues/prison-conditions/key-facts/overcrowding/ - Superlotação das prisões brasileiras: Operador político da racionalidade contemporânea
+#### Descrição
+
+*"Overcrowding is a consequence of criminal justice policy not of rising crime rates, and undermines the ability of prison systems to meet basic human needs, such as healthcare, food, and accommodation."*
+
+#### Resumo
+Nesse artigo, a superpopulação é conceituada a partir da inacapacidade do Estado de gerir adequadamente o sistema de política criminal e penitenciária.
+
+> ------------------------------------
+
+# Causas da Superpopulação Prisional
+
+## Revista - ESTUDOS DE PSICOLOGIA (NATAL. ONLINE) A1
+### Artigo - Superlotação das prisões brasileiras: Operador político da racionalidade contemporânea
+### Link - https://www.scielo.br/j/epsic/a/C9yL7bQrNyHpq7pTVScCGmH/?lang=pt
+#### Descrição
+
+*"A identificação do "criminoso" em indivíduos isolados e facilmente reconhecíveis produz uma sensação de alívio. O "criminoso" é o outro. Quem não é processado ou condenado vive uma consequente sensação de inocência. A imposição da pena a um apontado responsável pela prática de um crime funciona como a "absolvição" de todos os não selecionados pelo sistema penal, que, assim, podem comodamente se autointitular "cidadãos de bem", diferentes e contrapostos ao "criminoso", ao "delinquente", ao mau. (Karam, 2004, p. 89)... E a superlotação dos presídios brasileiros, visível por todos e naturalizada por muitos, emerge como potente analisador da racionalidade política que constitui o universo de violações presente no sistema prisional do Brasil."*
+
+#### Resumo
+Para os autores, a superpopulação é definida por viés político atrelado a padrões sociais, nesse sentido, o estado deixa de agir baseado em esteriótipos.
+
+> ----------------------------------------------
+
+## Site - Study.com
+### Artigo - Causes of Overpopulation in Prisons
+### Link - https://study.com/learn/lesson/prison-overcrowding.html
+#### Descrição
+
+*"One of the causes of overcrowding includes recidivism, which is the chance that a person with convictions will re-offend"*
+
+#### Resumo
+O autor coloca a reincidência criminal como fator de crucial para a superpopulação prisional. 
+Há certa dificuldade para o cálculo da taxa de reincidência devido a diversidade de metodologias utilizadas pelos pesquisadores. Pesquisa realizada por FAZEL e WOLF em 2015, listou as taxas de reincidência em 20 países com altos índices de desenvolvimento humano na europa, américa e ásia. O resultado mostrou grande variação entre 78% e e 20% para pesquisas considerando um período de 2 anos de acompanhamento do egresso.   
+No Brasil, a despeito de conceitos e metodologias divergirem, estudos realizados apontam para taxas de reincidência penitenciária entre 30,7% e 46% (adorno e lemgrubber), taxa de reincidência policial em 51% (sappori-2017) e taxa de reincidência legal em 24.4% (IPEA), a depender da forma de coleta de dados, configuração e área geográfica da pesquisa. (COLOCAR OS CONCEITOS DE REINCIDÊNCIA).
+ 
+
